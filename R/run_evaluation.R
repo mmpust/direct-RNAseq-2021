@@ -2,7 +2,6 @@
 # author: "Marie Pust"
 # date: "05 07 2021"
 
-
 # clean environment
 rm(list = ls())
 
@@ -47,6 +46,7 @@ ont_NN2_4h_BR2$platform <- "Nanopore"
 # filter for primary mapping reads only, flags 0 and 16
 #ont_NN2_4h_BR2 <- subset(ont_NN2_4h_BR2, flag == 0 | flag == 16)
 
+
 ont_NN2_4h_BR3 <-  scanBam("NN2_CS_4h_BR3.bam")
 ont_NN2_4h_BR3 <- data.frame(ont_NN2_4h_BR3)
 ont_NN2_4h_BR3$isolate <- "NN2"
@@ -57,6 +57,7 @@ ont_NN2_4h_BR3$platform <- "Nanopore"
 # filter for primary mapping reads only, flags 0 and 16
 #ont_NN2_4h_BR3 <- subset(ont_NN2_4h_BR3, flag == 0 | flag == 16)
 
+
 ont_NN2_8h_BR1 <-  scanBam("NN2_CS_8h_BR1.bam")
 ont_NN2_8h_BR1 <- data.frame(ont_NN2_8h_BR1)
 ont_NN2_8h_BR1$isolate <- "NN2"
@@ -66,6 +67,7 @@ ont_NN2_8h_BR1$replicate <- "BR1"
 ont_NN2_8h_BR1$platform <- "Nanopore"
 # filter for primary mapping reads only, flags 0 and 16
 #ont_NN2_8h_BR1 <- subset(ont_NN2_8h_BR1, flag == 0 | flag == 16)
+
 
 ont_NN2_8h_BR2 <-  scanBam("NN2_CS_8h_BR2.bam")
 ont_NN2_8h_BR2 <- data.frame(ont_NN2_8h_BR2)
@@ -89,7 +91,6 @@ ont_NN2_8h_BR3$platform <- "Nanopore"
 #ont_NN2_8h_BR3 <- subset(ont_NN2_8h_BR3, flag == 0 | flag == 16)
 
 
-
 ont_SG17M_4h_BR1 <-  scanBam("SG17M_CS_4h_BR1.bam")
 ont_SG17M_4h_BR1 <- data.frame(ont_SG17M_4h_BR1)
 ont_SG17M_4h_BR1$isolate <- "SG17M"
@@ -100,6 +101,7 @@ ont_SG17M_4h_BR1$platform <- "Nanopore"
 # filter for primary mapping reads only, flags 0 and 16
 #ont_SG17M_4h_BR1 <- subset(ont_SG17M_4h_BR1, flag == 0 | flag == 16)
 
+
 ont_SG17M_4h_BR2 <-  scanBam("SG17M_CS_4h_BR2.bam")
 ont_SG17M_4h_BR2 <- data.frame(ont_SG17M_4h_BR2)
 ont_SG17M_4h_BR2$isolate <- "SG17M"
@@ -109,6 +111,7 @@ ont_SG17M_4h_BR2$replicate <- "BR2"
 ont_SG17M_4h_BR2$platform <- "Nanopore"
 # filter for primary mapping reads only, flags 0 and 16
 #ont_SG17M_4h_BR2 <- subset(ont_SG17M_4h_BR2, flag == 0 | flag == 16)
+
 
 ont_SG17M_4h_BR3 <-  scanBam("SG17M_CS_4h_BR3.bam")
 ont_SG17M_4h_BR3 <- data.frame(ont_SG17M_4h_BR3)
@@ -132,7 +135,6 @@ ont_SG17M_8h_BR1$platform <- "Nanopore"
 #ont_SG17M_8h_BR1 <- subset(ont_SG17M_8h_BR1, flag == 0 | flag == 16)
 
 
-
 ont_SG17M_8h_BR2 <-  scanBam("SG17M_CS_8h_BR2.bam")
 ont_SG17M_8h_BR2 <- data.frame(ont_SG17M_8h_BR2)
 ont_SG17M_8h_BR2$isolate <- "SG17M"
@@ -142,7 +144,6 @@ ont_SG17M_8h_BR2$replicate <- "BR2"
 ont_SG17M_8h_BR2$platform <- "Nanopore"
 # filter for primary mapping reads only, flags 0 and 16
 #ont_SG17M_8h_BR2 <- subset(ont_SG17M_8h_BR2, flag == 0 | flag == 16)
-
 
 
 ont_SG17M_8h_BR3 <-  scanBam("SG17M_CS_8h_BR3.bam")
@@ -155,6 +156,8 @@ ont_SG17M_8h_BR3$platform <- "Nanopore"
 # filter for primary mapping reads only, flags 0 and 16
 #ont_SG17M_8h_BR3 <- subset(ont_SG17M_8h_BR3, flag == 0 | flag == 16)
 
+
+# start analysis
 ont_NN2_4h <- data.frame(rbind(ont_NN2_4h_BR1, ont_NN2_4h_BR2, ont_NN2_4h_BR3))
 ont_NN2_4h_noNA <- ont_NN2_4h[!is.na(ont_NN2_4h$qwidth), ]
 ont_NN2_4h_noNA$rname2 <- ifelse(ont_NN2_4h_noNA$rname == "RNA_CS_ENO2", "ENO2","PA")
@@ -328,7 +331,6 @@ merge_plots2 <-
  #      device="tiff", dpi=600, units="cm", width=25.2, height=21.6)
 
 
-
 ## NN2, 4h
 nn2_4h_kw <- kruskal.test(log10(ont_NN2_4h_noNA$qwidth), g=ont_NN2_4h_noNA$replicate)
 nn2_4h_e2 <- epsilonSquared(log10(ont_NN2_4h_noNA$qwidth), g=ont_NN2_4h_noNA$replicate, ci=TRUE)
@@ -368,7 +370,6 @@ nn2_sg17m_8h <- data.frame(rbind(ont_NN2_8h_noNA, ont_SG17M_8h_noNA))
 nn2_sg17m_8h$merged <- paste(nn2_sg17m_8h$mix, nn2_sg17m_8h$replicate, sep="_")
 nn2_sg17m_8h_kw <- kruskal.test(log10(nn2_sg17m_8h$qwidth), g=nn2_sg17m_8h$merged)
 nn2_sg17m_8h_e2 <- epsilonSquared(log10(nn2_sg17m_8h$qwidth), g=nn2_sg17m_8h$merged, ci=TRUE)
-
 
 # plots
 nn2_4h_plot_length <- ggplot(ont_NN2_4h_noNA, aes(x=replicate, y=log10(qwidth))) + 
@@ -450,6 +451,3 @@ merged_plot <- ggarrange(plot_length1, stats_plot, labels=c("A","E"), nrow=2, he
 
 #ggsave(merged_plot, file="save_figures/plot_length2.tif", device="tiff", dpi=300, units="cm") 
        # width=9.77, height=7.64)
-
-
-
