@@ -1,6 +1,6 @@
 # title run_evaluation
 # author: "Marie Pust"
-# date: "05 07 2021"
+# last updated: "05 07 2021"
 
 # clean environment
 rm(list = ls())
