@@ -37,12 +37,10 @@ for items in *.reverse_overlap.bam; do samtools view -b -F 4 -F 16 $items > ${it
 
 
 # 5.7. Convert from bam to bed
-for items in *.forward_antisense.bam; do bedtools bamtobed -i $items > ${items%.bam}.bed; done
-for items in *.reverse_antisense.bam; do bedtools bamtobed -i $items > ${items%.bam}.bed; done
-for items in *.forward_sense.bam; do bedtools bamtobed -i $items > ${items%.bam}.bed; done
-for items in *.reverse_sense.bam; do bedtools bamtobed -i $items > ${items%.bam}.bed; done
+for items in *sense.bam; do bedtools bamtobed -i $items > ${items%.bam}.bed; done
 
 
 # 6. Obtain genome coverage information
 for items in *forward_antisense.bam; do bedtools genomecov -ibam $items -bg  > ${items%.forward_antisense.bam}.genomecov.forward_antisense.bed; done
 for items in *reverse_antisense.bam; do bedtools genomecov -ibam $items -bg  > ${items%.reverse_antisense.bam}.genomecov.reverse_antisense.bed; done
+
