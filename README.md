@@ -1,4 +1,4 @@
-**Direct RNA nanopore sequencing unravels the transcriptome landscape of clinical and environmental Pseudomonas aeruginosa clone C strains**<br/>
+**Direct RNA nanopore sequencing unravels the complex transcriptional landscape of Pseudomonas aeruginosa clone C strains**<br/>
 Marie-Madlen Pust<sup>1,2</sup>, Colin Davenport<sup>3</sup>, Lutz Wiehlmann<sup>3</sup>, Burkhard Tümmler<sup>1,2*</sup> 
 <br/><br/>
 <sup>1</sup>Clinic for Paediatric Pneumology, Allergology, and Neonatology, Hannover Medical School, Germany <br/>
