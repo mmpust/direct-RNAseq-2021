@@ -1,14 +1,13 @@
-# title run_evaluation
-# author: "Marie Pust"
-# last updated: "05 07 2021"
 
-# clean environment
+# title: "run evaluation"
+# author: "Marie Pust"
+# date: "04 05 2021"
+
+# Clean environment
 rm(list = ls())
 
-# set working directory
 setwd("/MinionExperiments202009/d_Ranalysis")
 
-# load libraries
 library(Rsamtools)
 library(ggplot2)
 library(ggpubr)
@@ -17,7 +16,7 @@ library(tidyr)
 library(readr)
 library(rcompanion)
 
-# load input files
+# Load input ####
 input_bam <- list.files(
   path = "b_minimap2/",
   pattern = ".bam", full.names = TRUE)
@@ -25,139 +24,102 @@ input_bam <- list.files(
 UserDefinedAnnotationRef <- "NN2_ENO_SG17M_curated.gtf"
 Ref_genome <- "NN2_SG17M_CS.fna"
 
-ont_NN2_4h_BR1 <-  scanBam("NN2_CS_4h_BR1.bam")
+ont_NN2_4h_BR1 <-  scanBam("/b_minimap2/NN2_CS_4h_BR1.bam")
 ont_NN2_4h_BR1 <- data.frame(ont_NN2_4h_BR1)
 ont_NN2_4h_BR1$isolate <- "NN2"
 ont_NN2_4h_BR1$time <- "4h"
 ont_NN2_4h_BR1$mix <- "NN2_4h"
 ont_NN2_4h_BR1$replicate <- "BR1"
 ont_NN2_4h_BR1$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_NN2_4h_BR1 <- subset(ont_NN2_4h_BR1, flag == 0 | flag == 16)
- 
 
-ont_NN2_4h_BR2 <-  scanBam("NN2_CS_4h_BR2.bam")
+ont_NN2_4h_BR2 <-  scanBam("/b_minimap2/NN2_CS_4h_BR2.bam")
 ont_NN2_4h_BR2 <- data.frame(ont_NN2_4h_BR2)
 ont_NN2_4h_BR2$isolate <- "NN2"
 ont_NN2_4h_BR2$time <- "4h"
 ont_NN2_4h_BR2$mix <- "NN2_4h"
 ont_NN2_4h_BR2$replicate <- "BR2"
 ont_NN2_4h_BR2$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_NN2_4h_BR2 <- subset(ont_NN2_4h_BR2, flag == 0 | flag == 16)
 
-
-ont_NN2_4h_BR3 <-  scanBam("NN2_CS_4h_BR3.bam")
+ont_NN2_4h_BR3 <-  scanBam("/b_minimap2/NN2_CS_4h_BR3.bam")
 ont_NN2_4h_BR3 <- data.frame(ont_NN2_4h_BR3)
 ont_NN2_4h_BR3$isolate <- "NN2"
 ont_NN2_4h_BR3$time <- "4h"
 ont_NN2_4h_BR3$mix <- "NN2_4h"
 ont_NN2_4h_BR3$replicate <- "BR3"
 ont_NN2_4h_BR3$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_NN2_4h_BR3 <- subset(ont_NN2_4h_BR3, flag == 0 | flag == 16)
 
-
-ont_NN2_8h_BR1 <-  scanBam("NN2_CS_8h_BR1.bam")
+ont_NN2_8h_BR1 <-  scanBam("/b_minimap2//NN2_CS_8h_BR1.bam")
 ont_NN2_8h_BR1 <- data.frame(ont_NN2_8h_BR1)
 ont_NN2_8h_BR1$isolate <- "NN2"
 ont_NN2_8h_BR1$time <- "8h"
 ont_NN2_8h_BR1$mix <- "NN2_8h"
 ont_NN2_8h_BR1$replicate <- "BR1"
 ont_NN2_8h_BR1$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_NN2_8h_BR1 <- subset(ont_NN2_8h_BR1, flag == 0 | flag == 16)
 
-
-ont_NN2_8h_BR2 <-  scanBam("NN2_CS_8h_BR2.bam")
+ont_NN2_8h_BR2 <-  scanBam("b_minimap2//NN2_CS_8h_BR2.bam")
 ont_NN2_8h_BR2 <- data.frame(ont_NN2_8h_BR2)
 ont_NN2_8h_BR2$isolate <- "NN2"
 ont_NN2_8h_BR2$time <- "8h"
 ont_NN2_8h_BR2$mix <- "NN2_8h"
 ont_NN2_8h_BR2$replicate <- "BR2"
 ont_NN2_8h_BR2$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_NN2_8h_BR2 <- subset(ont_NN2_8h_BR2, flag == 0 | flag == 16)
 
-
-ont_NN2_8h_BR3 <-  scanBam("NN2_CS_8h_BR3.bam")
+ont_NN2_8h_BR3 <-  scanBam("/b_minimap2/NN2_CS_8h_BR3.bam")
 ont_NN2_8h_BR3 <- data.frame(ont_NN2_8h_BR3)
 ont_NN2_8h_BR3$isolate <- "NN2"
 ont_NN2_8h_BR3$time <- "8h"
 ont_NN2_8h_BR3$mix <- "NN2_8h"
 ont_NN2_8h_BR3$replicate <- "BR3"
 ont_NN2_8h_BR3$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_NN2_8h_BR3 <- subset(ont_NN2_8h_BR3, flag == 0 | flag == 16)
 
-
-ont_SG17M_4h_BR1 <-  scanBam("SG17M_CS_4h_BR1.bam")
+ont_SG17M_4h_BR1 <-  scanBam("/b_minimap2/SG17M_CS_4h_BR1.bam")
 ont_SG17M_4h_BR1 <- data.frame(ont_SG17M_4h_BR1)
 ont_SG17M_4h_BR1$isolate <- "SG17M"
 ont_SG17M_4h_BR1$time <- "4h"
 ont_SG17M_4h_BR1$mix <- "SG17M_4h"
 ont_SG17M_4h_BR1$replicate <- "BR1"
 ont_SG17M_4h_BR1$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_SG17M_4h_BR1 <- subset(ont_SG17M_4h_BR1, flag == 0 | flag == 16)
 
-
-ont_SG17M_4h_BR2 <-  scanBam("SG17M_CS_4h_BR2.bam")
+ont_SG17M_4h_BR2 <-  scanBam("/b_minimap2/SG17M_CS_4h_BR2.bam")
 ont_SG17M_4h_BR2 <- data.frame(ont_SG17M_4h_BR2)
 ont_SG17M_4h_BR2$isolate <- "SG17M"
 ont_SG17M_4h_BR2$time <- "4h"
 ont_SG17M_4h_BR2$mix <- "SG17M_4h"
 ont_SG17M_4h_BR2$replicate <- "BR2"
 ont_SG17M_4h_BR2$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_SG17M_4h_BR2 <- subset(ont_SG17M_4h_BR2, flag == 0 | flag == 16)
 
-
-ont_SG17M_4h_BR3 <-  scanBam("SG17M_CS_4h_BR3.bam")
+ont_SG17M_4h_BR3 <-  scanBam("/b_minimap2//SG17M_CS_4h_BR3.bam")
 ont_SG17M_4h_BR3 <- data.frame(ont_SG17M_4h_BR3)
 ont_SG17M_4h_BR3$isolate <- "SG17M"
 ont_SG17M_4h_BR3$time <- "4h"
 ont_SG17M_4h_BR3$mix <- "SG17M_4h"
 ont_SG17M_4h_BR3$replicate <- "BR3"
 ont_SG17M_4h_BR3$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_SG17M_4h_BR3 <- subset(ont_SG17M_4h_BR3, flag == 0 | flag == 16)
 
-
-ont_SG17M_8h_BR1 <-  scanBam("SG17M_CS_8h_BR1.bam")
+ont_SG17M_8h_BR1 <-  scanBam("/b_minimap2//SG17M_CS_8h_BR1.bam")
 ont_SG17M_8h_BR1 <- data.frame(ont_SG17M_8h_BR1)
 ont_SG17M_8h_BR1$isolate <- "SG17M"
 ont_SG17M_8h_BR1$time <- "8h"
 ont_SG17M_8h_BR1$mix <- "SG17M_8h"
 ont_SG17M_8h_BR1$replicate <- "BR1"
 ont_SG17M_8h_BR1$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_SG17M_8h_BR1 <- subset(ont_SG17M_8h_BR1, flag == 0 | flag == 16)
 
-
-ont_SG17M_8h_BR2 <-  scanBam("SG17M_CS_8h_BR2.bam")
+ont_SG17M_8h_BR2 <-  scanBam("/b_minimap2/SG17M_CS_8h_BR2.bam")
 ont_SG17M_8h_BR2 <- data.frame(ont_SG17M_8h_BR2)
 ont_SG17M_8h_BR2$isolate <- "SG17M"
 ont_SG17M_8h_BR2$time <- "8h"
 ont_SG17M_8h_BR2$mix <- "SG17M_8h"
 ont_SG17M_8h_BR2$replicate <- "BR2"
 ont_SG17M_8h_BR2$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_SG17M_8h_BR2 <- subset(ont_SG17M_8h_BR2, flag == 0 | flag == 16)
 
-
-ont_SG17M_8h_BR3 <-  scanBam("SG17M_CS_8h_BR3.bam")
+ont_SG17M_8h_BR3 <-  scanBam("/b_minimap2//SG17M_CS_8h_BR3.bam")
 ont_SG17M_8h_BR3 <- data.frame(ont_SG17M_8h_BR3)
 ont_SG17M_8h_BR3$isolate <- "SG17M"
 ont_SG17M_8h_BR3$time <- "8h"
 ont_SG17M_8h_BR3$mix <- "SG17M_8h"
 ont_SG17M_8h_BR3$replicate <- "BR3"
 ont_SG17M_8h_BR3$platform <- "Nanopore"
-# filter for primary mapping reads only, flags 0 and 16
-#ont_SG17M_8h_BR3 <- subset(ont_SG17M_8h_BR3, flag == 0 | flag == 16)
 
-
-# start analysis
 ont_NN2_4h <- data.frame(rbind(ont_NN2_4h_BR1, ont_NN2_4h_BR2, ont_NN2_4h_BR3))
 ont_NN2_4h_noNA <- ont_NN2_4h[!is.na(ont_NN2_4h$qwidth), ]
 ont_NN2_4h_noNA$rname2 <- ifelse(ont_NN2_4h_noNA$rname == "RNA_CS_ENO2", "ENO2","PA")
@@ -235,16 +197,26 @@ nreads_ENO_antisense  <- c(table(ont_NN2_4h_BR1$strand, ont_NN2_4h_BR1$rname)[8]
                      table(ont_SG17M_8h_BR3$strand, ont_SG17M_8h_BR3$rname)[8])
 
 # percentage of spurious antisense RNA
+sum(nreads_ENO_antisense)
+sum(nreads_ENO_sense) + sum(nreads_ENO_antisense)
 sum(nreads_ENO_antisense) / (sum(nreads_ENO_sense + sum(nreads_ENO_antisense)))
-n_reads_sense_antisense <- data.frame(cbind(nreads_PA_sense, nreads_PA_antisense, nreads_ENO_sense, nreads_ENO_antisense))
-rownames(n_reads_sense_antisense) <- c("ONT_NN2_4h_BR1", "ONT_NN2_4h_BR2", "ONT_NN2_4h_BR3", "ONT_NN2_8h_BR1", "ONT_NN2_8h_BR2", "ONT_NN2_8h_BR3",
-                                       "ONT_SG17M_4h_BR1", "ONT_SG17M_4h_BR2", "ONT_SG17M_4h_BR3","ONT_SG17M_8h_BR1", "ONT_SG17M_8h_BR2", "ONT_SG17M_8h_BR3")
+
+n_reads_sense_antisense <- 
+  data.frame(cbind(nreads_PA_sense, nreads_PA_antisense, nreads_ENO_sense, nreads_ENO_antisense))
+rownames(n_reads_sense_antisense) <- c("ONT_NN2_4h_BR1", "ONT_NN2_4h_BR2", "ONT_NN2_4h_BR3", 
+                                       "ONT_NN2_8h_BR1", "ONT_NN2_8h_BR2", "ONT_NN2_8h_BR3",
+                                       "ONT_SG17M_4h_BR1", "ONT_SG17M_4h_BR2", "ONT_SG17M_4h_BR3",
+                                       "ONT_SG17M_8h_BR1", "ONT_SG17M_8h_BR2", "ONT_SG17M_8h_BR3")
 n_reads_sense_antisense$sum <- rowSums(n_reads_sense_antisense)
 
-n_reads_sense_antisense$sense_PA_perc <- (n_reads_sense_antisense$nreads_PA_sense / n_reads_sense_antisense$sum) * 100
-n_reads_sense_antisense$antisense_PA_perc <- (n_reads_sense_antisense$nreads_PA_antisense / n_reads_sense_antisense$sum) * 100
-n_reads_sense_antisense$sense_ENO_perc <- (n_reads_sense_antisense$nreads_ENO_sense / n_reads_sense_antisense$sum) * 100
-n_reads_sense_antisense$antisense_ENO_perc <- (n_reads_sense_antisense$nreads_ENO_antisense / n_reads_sense_antisense$sum) * 100
+n_reads_sense_antisense$sense_PA_perc <- 
+  (n_reads_sense_antisense$nreads_PA_sense / n_reads_sense_antisense$sum) * 100
+n_reads_sense_antisense$antisense_PA_perc <- 
+  (n_reads_sense_antisense$nreads_PA_antisense / n_reads_sense_antisense$sum) * 100
+n_reads_sense_antisense$sense_ENO_perc <- 
+  (n_reads_sense_antisense$nreads_ENO_sense / n_reads_sense_antisense$sum) * 100
+n_reads_sense_antisense$antisense_ENO_perc <- 
+  (n_reads_sense_antisense$nreads_ENO_antisense / n_reads_sense_antisense$sum) * 100
 n_reads_sense_antisense$sense_PA_perc <- round(n_reads_sense_antisense$sense_PA_perc,2)
 n_reads_sense_antisense$antisense_PA_perc <- round(n_reads_sense_antisense$antisense_PA_perc,2)
 n_reads_sense_antisense$sense_ENO_perc <- round(n_reads_sense_antisense$sense_ENO_perc,2)
@@ -258,15 +230,21 @@ n_reads_sense_antisense_L_total$isolate2 <- with(n_reads_sense_antisense_L_total
                                                 ifelse(isolate == "nreads_PA_sense", "PA, forward strand",
                                                        ifelse(isolate == "nreads_PA_antisense", "PA, reverse strand",
                                                               ifelse(isolate == "nreads_ENO_sense", "ENO, forward strand", 
-                                                                     ifelse(isolate == "nreads_ENO_antisense", "ENO, reverse strand", NA)))))
+                                                                     ifelse(isolate == "nreads_ENO_antisense", 
+                                                                            "ENO, reverse strand", NA)))))
 
 
 
-libsize_plot <- ggplot(n_reads_sense_antisense_L_total, aes(x=id, y=sqrt(value), fill=isolate2)) +
-  geom_col() + theme_pubr(border=TRUE, base_size=11) + coord_flip() + ylab("Read count (square-root scale)\n\n") + xlab("") +
+libsize_plot <- 
+  ggplot(n_reads_sense_antisense_L_total, aes(x=id, y=sqrt(value), fill=isolate2)) +
+  geom_col() + 
+  theme_pubr(border=TRUE, base_size=11) + coord_flip() + 
+  ylab("Number of reads") +
+  xlab("") +
   theme(legend.title = element_blank(), legend.position = c(0.7,0.2)) + 
   scale_fill_manual(values=c("orange", "red", "cyan", "darkblue")) +
-  scale_y_continuous(labels = scales::comma, breaks = c(0, 1000, 2000))
+  scale_y_continuous(breaks = c(0, 1000, 2000),
+                     labels=c("0", expression("1,000"^2), expression("2,000"^2)))
 
 summary_names <- c("ONT_NN2_4h_BR1", "ONT_NN2_4h_BR2", "ONT_NN2_4h_BR3", 
                    "ONT_NN2_8h_BR1", "ONT_NN2_8h_BR2", "ONT_NN2_8h_BR3", 
@@ -290,17 +268,22 @@ dataset2 <- data.frame(dataset2)
 centroids <- aggregate(cbind(pore_capacity,cumsum)~Run,dataset2,median)
 cor_test <- cor.test(dataset2$pore_capacity, dataset2$cumsum)
 
+
 pore_capacity_plot <-
   ggplot(dataset2) +
   geom_jitter(aes(x=pore_capacity, y=cumsum, color=Run), size=2) +
   geom_point(data=centroids,aes(x=pore_capacity, y=cumsum, color=Run), size=6) +
   geom_line(aes(x=pore_capacity, y=cumsum, color=Run)) +
   theme_pubr(border=TRUE,legend = "none",base_size=11) +
-  scale_colour_manual(values=c("lightgreen", "yellow", "darkgreen", "gold", "black", "blue", "orange", 
+  scale_colour_manual(values=c("lightgreen", "yellow", "darkgreen", "gold", 
+                               "black", "blue", "orange", 
                                "cyan", "grey", "firebrick", "violet")) +
-  xlab("Number of available pores\n\n") + ylab("Number of reads") + scale_y_continuous(labels = scales::comma)
+  xlab("Number of available pores") + ylab("Number of reads") + 
+  scale_y_continuous(labels = scales::comma)
 
-size_capacity_plot <- ggarrange(libsize_plot, pore_capacity_plot, nrow=1, labels = c("A", "B"))
+size_capacity_plot <- ggarrange(libsize_plot, pore_capacity_plot, 
+                                nrow=1, labels = c("A", "B"))
+size_capacity_plot
 
 ont_noNA <- rbind(ont_NN2_4h_noNA, ont_NN2_8h_noNA, ont_SG17M_4h_noNA, ont_SG17M_8h_noNA)
 ont_noNA$loq_qwith <- sqrt(ont_noNA$qwidth)
@@ -311,25 +294,36 @@ ont_noNA_8h <- subset(ont_noNA, time == "8h")
 length_4h_plot <-
   ggplot(ont_noNA_4h) +
   geom_density(aes(x=loq_qwith, color=strand)) + facet_grid(~isolate) + 
-  theme_pubr(border=TRUE, base_size=11) + xlab("Read length (square-root scale)\n") +
-  scale_color_manual(values=c("blue", "cyan")) + ylab("Density") + xlim(1,100) + 
+  theme_pubr(border=TRUE, base_size=11) + xlab("RNA read length") +
+  scale_color_manual(values=c("blue", "cyan")) + ylab("Density") + 
+  scale_x_continuous(breaks=c(30, 60, 90),
+                     labels=c(expression("30"^2), 
+                              expression("60"^2), 
+                              expression("90"^2)), 
+                     limits=c(1,100)) +
   theme(legend.title = element_blank(), legend.position = c(0.1,0.75)) 
 
 length_8h_plot <-
   ggplot(ont_noNA_8h) +
   geom_density(aes(x=loq_qwith, color=strand)) + facet_grid(~isolate) + 
-  theme_pubr(border=TRUE, base_size=11, legend = "none") + xlab("Read length (square-root scale)\n") +
-  scale_color_manual(values=c("blue", "cyan")) + ylab(" ") + xlim(1,100) + 
+  theme_pubr(border=TRUE, base_size=11, legend = "none") + 
+  xlab("RNA read length") +
+  scale_color_manual(values=c("blue", "cyan")) + ylab(" ") + 
+  scale_x_continuous(breaks=c(30, 60, 90),
+                     labels=c(expression("30"^2), 
+                              expression("60"^2), 
+                              expression("90"^2)), 
+                     limits=c(1,100)) +
   theme(axis.ticks.y = element_blank())
 
 length_sense_antisense <- ggarrange(length_4h_plot, length_8h_plot, nrow=1, labels=c("C", "D"))
+length_sense_antisense
 
 merge_plots2 <- 
   ggarrange(size_capacity_plot, length_sense_antisense, nrow=2, heights = c(1,0.5))
-
+merge_plots2
 #ggsave(merge_plots2, filename="save_figures/run_evaluation.tif", 
- #      device="tiff", dpi=600, units="cm", width=25.2, height=21.6)
-
+  #     device="tiff", dpi=600, units="cm", width=25.2, height=21.6)
 
 ## NN2, 4h
 nn2_4h_kw <- kruskal.test(log10(ont_NN2_4h_noNA$qwidth), g=ont_NN2_4h_noNA$replicate)
@@ -370,6 +364,7 @@ nn2_sg17m_8h <- data.frame(rbind(ont_NN2_8h_noNA, ont_SG17M_8h_noNA))
 nn2_sg17m_8h$merged <- paste(nn2_sg17m_8h$mix, nn2_sg17m_8h$replicate, sep="_")
 nn2_sg17m_8h_kw <- kruskal.test(log10(nn2_sg17m_8h$qwidth), g=nn2_sg17m_8h$merged)
 nn2_sg17m_8h_e2 <- epsilonSquared(log10(nn2_sg17m_8h$qwidth), g=nn2_sg17m_8h$merged, ci=TRUE)
+
 
 # plots
 nn2_4h_plot_length <- ggplot(ont_NN2_4h_noNA, aes(x=replicate, y=log10(qwidth))) + 
