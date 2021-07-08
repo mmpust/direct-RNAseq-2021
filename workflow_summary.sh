@@ -30,10 +30,11 @@ for items in *.sorted.bam; do bedtools intersect -a $items -b reverse_features.g
 
 # 5.5. extract antisense reads
 for items in *.forward_overlap.bam; do samtools view -b -F 4 -f 16 $items > ${items%.forward_overlap.bam}.forward_antisense.bam; done
-for items in *.reverse_overlap.bam; do samtools view -b -F 4 -f 16 $items > ${items%.reverse_overlap.bam}.reverse_antisense.bam; done
+for items in *.reverse_overlap.bam; do samtools view -b -F 4 -F 16 $items > ${items%.reverse_overlap.bam}.reverse_antisense.bam; done
+
 # 5.6. extract sense reads
 for items in *.forward_overlap.bam; do samtools view -b -F 4 -F 16 $items > ${items%.forward_overlap.bam}.forward_sense.bam; done
-for items in *.reverse_overlap.bam; do samtools view -b -F 4 -F 16 $items > ${items%.reverse_overlap.bam}.reverse_sense.bam; done
+for items in *.reverse_overlap.bam; do samtools view -b -F 4 -f 16 $items > ${items%.reverse_overlap.bam}.reverse_sense.bam; done
 
 
 # 5.7. Convert from bam to bed
