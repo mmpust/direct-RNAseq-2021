@@ -7,41 +7,45 @@
 rm(list = ls())
 
 # Packages ####
-library("Rsubread")
-library("ggplot2")
-library("edgeR")
-library("pheatmap")
-library("plyr")
-library("dplyr")
-library("tidyr")
-library("ggpubr")
-library("vegan")
-library("lemon")
-library("factoextra")
-library("stringr")
-library("ggplotify")
-library("tidyverse")
-library("RColorBrewer")
-library("purrr")
+library('Rsubread')
+library('ggplot2')
+library('edgeR')
+library('pheatmap')
+library('plyr')
+library('dplyr')
+library('tidyr')
+library('ggpubr')
+library('vegan')
+library('lemon')
+library('factoextra')
+library('stringr')
+library('ggplotify')
+library('tidyverse')
+library('RColorBrewer')
+library('purrr')
 library('readr')
 library('ggdendro')
 library('ggrepel')
 library('ggcorrplot')
 library('Hmisc')
-setwd("/d_Ranalysis")
+library('GenomicRanges')
+library('GenomicAlignments')
+library('Rsamtools')
+library('seqinr')
+library('corrplot')
 
+# set working directory
+setwd("/MinionExperiments202009/d_Ranalysis")
 
-# Load input ####
-input_bam_NN2<- list.files(
-  path = "NN2_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
-
-input_bam_SG17M <- list.files(
-  path = "SG17M_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
+# load input
+input_bam_NN2<- list.files(path = "/NN2_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
+input_bam_SG17M <- list.files(path = "/SG17M_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
 
 UserDefinedAnnotationRef <- "NN2_ENO_SG17M_curated.gtf"
 UserDefinedAnnotationRef_NN2 <- "NN2_ENO_curated.gtf"
 UserDefinedAnnotationRef_SG17M <- "SG17M_ENO_curated.gtf"
 
+# prepare annotation files, NN2
 import_gtf_NN2 <- read.table(UserDefinedAnnotationRef_NN2, sep = '\t', header = FALSE)
 colnames(import_gtf_NN2) <- c("Isolate", "database", "featureType", "start", "end", "V6", "strandType", "V8", "V9")
 import_gtf_NN2$V6 <- NULL
@@ -61,6 +65,7 @@ import_gtf_NN2$length <- import_gtf_NN2$end - import_gtf_NN2$start
 import_gtf_NN2_island <- import_gtf_NN2 
 import_gtf_NN2 <- subset(import_gtf_NN2, database != "IslandViewer4")
 
+# prepare annotation files, SG17M
 import_gtf_SG17M <- read.table(UserDefinedAnnotationRef_SG17M, sep = '\t', header = FALSE)
 colnames(import_gtf_SG17M) <- c("Isolate", "database", "featureType", "start", "end", "V6", "strandType", "V8", "V9")
 import_gtf_SG17M$V6 <- NULL
@@ -80,6 +85,7 @@ import_gtf_SG17M$length <- import_gtf_SG17M$end - import_gtf_SG17M$start
 import_gtf_SG17M_island <- import_gtf_SG17M 
 import_gtf_SG17M <- subset(import_gtf_SG17M, database != "IslandViewer4")
 
+# Obtain count data
 featureCounts_PA_antisenseNN2 <- 
   featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2, 
                 isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
@@ -112,10 +118,8 @@ featureCounts_PA_antisense_df_NN2 <- featureCounts_PA_antisenseNN2$counts
 featureCounts_PA_antisense_df_NN2 <- data.frame(featureCounts_PA_antisense_df_NN2)
 featureCounts_PA_sense_df_NN2 <- featureCounts_PA_senseNN2$counts
 featureCounts_PA_sense_df_NN2 <- data.frame(featureCounts_PA_sense_df_NN2)
-colnames(featureCounts_PA_antisense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", 
-                                                 "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
-colnames(featureCounts_PA_sense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", 
-                                             "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
+colnames(featureCounts_PA_antisense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
+colnames(featureCounts_PA_sense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
 tRNA_antisense_NN2 <- featureCounts_PA_antisense_df_NN2
 mRNA_antisense_NN2 <- featureCounts_PA_antisense_df_NN2
 tRNA_sense_NN2 <- featureCounts_PA_sense_df_NN2
@@ -126,10 +130,8 @@ featureCounts_PA_antisense_df_SG17M <- data.frame(featureCounts_PA_antisense_df_
 featureCounts_PA_sense_df_SG17M <- featureCounts_PA_senseSG17M$counts
 featureCounts_PA_sense_df_SG17M <- data.frame(featureCounts_PA_sense_df_SG17M)
 
-colnames(featureCounts_PA_antisense_df_SG17M) <-c("SG17M_4h_BR1", "SG17M_4h_BR2", "SG17M_4h_BR3",
-                                                  "SG17M_8h_BR1","SG17M_8h_BR2","SG17M_8h_BR3")
-colnames(featureCounts_PA_sense_df_SG17M) <-c("SG17M_4h_BR1", "SG17M_4h_BR2", "SG17M_4h_BR3",
-                                              "SG17M_8h_BR1","SG17M_8h_BR2","SG17M_8h_BR3")
+colnames(featureCounts_PA_antisense_df_SG17M) <-c("SG17M_4h_BR1", "SG17M_4h_BR2", "SG17M_4h_BR3", "SG17M_8h_BR1","SG17M_8h_BR2","SG17M_8h_BR3")
+colnames(featureCounts_PA_sense_df_SG17M) <-c("SG17M_4h_BR1", "SG17M_4h_BR2", "SG17M_4h_BR3", "SG17M_8h_BR1","SG17M_8h_BR2","SG17M_8h_BR3")
 tRNA_antisense_SG17M <- featureCounts_PA_antisense_df_SG17M
 mRNA_antisense_SG17M <- featureCounts_PA_antisense_df_SG17M
 tRNA_sense_SG17M <- featureCounts_PA_sense_df_SG17M
@@ -233,8 +235,6 @@ featureCounts_PA_sense_df_t_rel_L_SG17M <- gather(featureCounts_PA_sense_df_t_re
 featureCounts_PA_sense_df_t_rel_L_SG17M$strand_type = "Sense RNA"
 featureCounts_PA_sense_df_t_rel_L_SG17M$isolate = "SG17M"
 
-featureCounts_PA_sense_df_t_SG17M
-
 merge_sense_df_NN2_SG17M <- data.frame(rbind(featureCounts_PA_sense_df_t_rel_L_NN2, 
                                              featureCounts_PA_sense_df_t_rel_L_SG17M))
 merge_sense_df_NN2_SG17M$type1 <- paste(merge_sense_df_NN2_SG17M$type,"_sense")
@@ -243,9 +243,7 @@ merge_antisense_df_NN2_SG17M <- data.frame(rbind(featureCounts_PA_antisense_df_t
                                              featureCounts_PA_antisense_df_t_rel_L_SG17M))
 merge_antisense_df_NN2_SG17M$type1 <- paste(merge_antisense_df_NN2_SG17M$type,"_antisense")
 
-
-featureCounts_PA_sense_antisense_df_t_rel_L <- data.frame(rbind(merge_sense_df_NN2_SG17M,
-                                                                merge_antisense_df_NN2_SG17M))
+featureCounts_PA_sense_antisense_df_t_rel_L <- data.frame(rbind(merge_sense_df_NN2_SG17M, merge_antisense_df_NN2_SG17M))
 
 featureCounts_PA_sense_antisense_df_t_rel_L$type1b <- with(
   featureCounts_PA_sense_antisense_df_t_rel_L,
@@ -275,15 +273,12 @@ featureCounts_PA_sense_antisense_df_t_rel_L$type3 <- factor(
 featureCounts_PA_sense_antisense_df_t_rel_L$strand_type2 <- ifelse(
   featureCounts_PA_sense_antisense_df_t_rel_L$strand_type == "Sense RNA", " Sense RNA ", "Antisense RNA") 
 
-amount_rna <-
-  ggplot(featureCounts_PA_sense_antisense_df_t_rel_L) +
+amount_rna <- ggplot(featureCounts_PA_sense_antisense_df_t_rel_L) +
   geom_col(aes(x=featureType, y=abundance, fill=reorder(type3))) +
   facet_wrap(~strand_type2) +
   theme_pubr(border=TRUE, base_size=11) + 
-  theme(legend.title = element_blank(), legend.position = "bottom",
-        legend.background = element_blank(),
-        legend.box.background = element_rect(colour = "black"),
-        axis.text.y = element_text(size=10)) + 
+  theme(legend.title = element_blank(), legend.position = "bottom", legend.background = element_blank(),
+        legend.box.background = element_rect(colour = "black"), axis.text.y = element_text(size=10)) + 
   xlab(" ") + ylab("Relative abundance") +
   scale_fill_manual(values=c("skyblue4", "darkolivegreen4","gray5",  "tan2", "brown3", 
                              "skyblue3", "darkolivegreen3", "gray60", "tan1", "brown1")) + 
@@ -323,12 +318,8 @@ featureCounts_PA_antisense_df_t_2_SG17M$strain <- "SG17M"
 featureCounts_PA_antisense_df_t_2_NN2$time <- c("4h", "4h", "4h", "8h", "8h", "8h")
 featureCounts_PA_antisense_df_t_2_SG17M$time <- c("4h", "4h", "4h", "8h", "8h", "8h")
 
-featureCounts_PA_antisense_df_t_2_both <- data.frame(rbind(featureCounts_PA_antisense_df_t_2_NN2,
-                                                           featureCounts_PA_antisense_df_t_2_SG17M))
-
-featureCounts_PA_antisense_df_t_2_L <- gather(featureCounts_PA_antisense_df_t_2_both, 
-                                              key="RNA_type", "abundance", -c(sample,strain,time))
-
+featureCounts_PA_antisense_df_t_2_both <- data.frame(rbind(featureCounts_PA_antisense_df_t_2_NN2, featureCounts_PA_antisense_df_t_2_SG17M))
+featureCounts_PA_antisense_df_t_2_L <- gather(featureCounts_PA_antisense_df_t_2_both, key="RNA_type", "abundance", -c(sample,strain,time))
 
 featureCounts_PA_sense_df_t_2_NN2 <- featureCounts_PA_sense_df_t_NN2
 featureCounts_PA_sense_df_t_2_NN2$rowSums <- NULL
@@ -342,7 +333,6 @@ featureCounts_PA_sense_df_t_2_NN2$ncRNA.undefined <- NULL
 featureCounts_PA_sense_df_t_2_NN2$tRNA <- NULL
 featureCounts_PA_sense_df_t_2_NN2$rRNA <- NULL
 featureCounts_PA_sense_df_t_2_NN2$sample <- rownames(featureCounts_PA_sense_df_t_2_NN2)
-
 
 featureCounts_PA_sense_df_t_2_SG17M <- featureCounts_PA_sense_df_t_SG17M
 featureCounts_PA_sense_df_t_2_SG17M$rowSums <- NULL
@@ -362,18 +352,10 @@ featureCounts_PA_sense_df_t_2_SG17M$strain <- "SG17M"
 featureCounts_PA_sense_df_t_2_NN2$time <- c("4h", "4h", "4h", "8h", "8h", "8h")
 featureCounts_PA_sense_df_t_2_SG17M$time <- c("4h", "4h", "4h", "8h", "8h", "8h")
 
-featureCounts_PA_sense_df_t_2_both <- data.frame(rbind(featureCounts_PA_sense_df_t_2_NN2, 
-                                                       featureCounts_PA_sense_df_t_2_SG17M))
-
-featureCounts_PA_sense_df_t_2_L <- gather(featureCounts_PA_sense_df_t_2_both, 
-                                          key="RNA_type", "abundance", -c(sample,strain,time))
-
-#black is four hours, orange is eight hours
-featureCounts_PA_antisense_df_t_2_L$RNA_type2 <- with(featureCounts_PA_antisense_df_t_2_L,
-                                                      ifelse(RNA_type == "ncRNA", "ncRNA", "CDS"))
-
-featureCounts_PA_sense_df_t_2_L$RNA_type2 <- with(featureCounts_PA_sense_df_t_2_L,
-                                                      ifelse(RNA_type == "ncRNA", "ncRNA", "CDS"))
+featureCounts_PA_sense_df_t_2_both <- data.frame(rbind(featureCounts_PA_sense_df_t_2_NN2, featureCounts_PA_sense_df_t_2_SG17M))
+featureCounts_PA_sense_df_t_2_L <- gather(featureCounts_PA_sense_df_t_2_both, key="RNA_type", "abundance", -c(sample,strain,time))
+featureCounts_PA_antisense_df_t_2_L$RNA_type2 <- with(featureCounts_PA_antisense_df_t_2_L, ifelse(RNA_type == "ncRNA", "ncRNA", "CDS"))
+featureCounts_PA_sense_df_t_2_L$RNA_type2 <- with(featureCounts_PA_sense_df_t_2_L, ifelse(RNA_type == "ncRNA", "ncRNA", "CDS"))
 
 scientific_10 <- function(x) {
     xout <- gsub("1e", "10^{", format(x),fixed=TRUE)
@@ -385,46 +367,30 @@ scientific_10 <- function(x) {
 
 scale_y_log10nice <- function(name=NULL,...) {
     breaks10 <- c(100, 10000, 1000000)
-    scale_y_log10(name, breaks=breaks10, labels=scientific_10(breaks10), limits=c(10, 1900000),...)}
+    scale_y_log10(name, breaks=breaks10, 
+                  labels=scientific_10(breaks10), limits=c(10, 1900000),...)}
 
-
-quantify_antisense_RNA <-
-  ggplot(featureCounts_PA_antisense_df_t_2_L, aes(x=RNA_type2, y=abundance)) +
-  geom_violin() + 
-  geom_jitter(aes(colour=time), width = 0.05, alpha=0.4) + 
-  stat_summary(fun.data = "mean_sdl",  fun.args = list(mult = 1), 
-               geom = "pointrange", color = "red") +
+quantify_antisense_RNA <- ggplot(featureCounts_PA_antisense_df_t_2_L, aes(x=RNA_type2, y=abundance)) +
+  geom_violin() + geom_jitter(aes(colour=time), width = 0.05, alpha=0.4) + 
+  stat_summary(fun.data = "mean_sdl",  fun.args = list(mult = 1), geom = "pointrange", color = "red") +
   stat_compare_means(label = "p.signif", size=6, label.x = 1.44, label.y = 5.9) +  
   theme_pubr(border=TRUE, base_size=11)  + xlab(" ") + 
-  facet_wrap(~strain) + 
-  scale_y_log10nice() +
+  facet_wrap(~strain) + scale_y_log10nice() +
   theme(legend.position = "none", axis.text.x = element_text(size=10)) +
   scale_color_manual(values=c("black","blue"))
 
-
-quantify_sense_RNA <-
-  ggplot(featureCounts_PA_sense_df_t_2_L, aes(x=RNA_type2, y=abundance)) +
-  geom_violin() + 
-  geom_jitter(aes(colour=time), width = 0.05, alpha=0.4) + 
-  stat_summary(fun.data = "mean_sdl",  fun.args = list(mult = 1), 
-               geom = "pointrange", color = "red") +
+quantify_sense_RNA <- ggplot(featureCounts_PA_sense_df_t_2_L, aes(x=RNA_type2, y=abundance)) +
+  geom_violin() + geom_jitter(aes(colour=time), width = 0.05, alpha=0.4) + 
+  stat_summary(fun.data = "mean_sdl",  fun.args = list(mult = 1), geom = "pointrange", color = "red") +
   stat_compare_means(label = "p.signif", size=6, label.x = 1.44, label.y = 5.9) + 
-  theme_pubr(border=TRUE, base_size=11) + 
-  xlab(" ") + 
+  theme_pubr(border=TRUE, base_size=11) + xlab(" ") + 
   facet_wrap(~strain) + 
   theme(legend.position = "none", axis.text.x = element_text(size=10)) +
-  scale_y_log10nice("Read count") + 
-  scale_color_manual(values=c("black","blue"))
+  scale_y_log10nice("Read count") + scale_color_manual(values=c("black","blue"))
 
-merge_quantify <- ggarrange(quantify_sense_RNA, 
-                            quantify_antisense_RNA, 
-                            labels=c("B", "C"), widths = c(1,0.9))
-merge_quantify
+merge_quantify <- ggarrange(quantify_sense_RNA, quantify_antisense_RNA, labels=c("B", "C"), widths = c(1,0.9))
 quantify_sense_antisense <- ggarrange(amount_rna2, merge_quantify, nrow=2, heights = c(1,0.5))
-quantify_sense_antisense
-
-#ggsave(quantify_sense_antisense, filename = "save_figures/quantify_RNA.tif", device="tiff", dpi=300, units="cm", 
- #      width = 21.1, height = 21.6)
+# ggsave(quantify_sense_antisense, filename = "save_figures/Figure_02.jpeg", device="jpeg", dpi=800, units="cm", width = 21.1, height = 21.6)
 
 featureCounts_PA_sense_df_t_2_L_NN2 <- subset(featureCounts_PA_sense_df_t_2_L, strain == "NN2")
 featureCounts_PA_sense_df_t_2_L_SG17M <- subset(featureCounts_PA_sense_df_t_2_L, strain == "SG17M")
@@ -433,7 +399,6 @@ rcompanion::wilcoxonR(x=featureCounts_PA_sense_df_t_2_L_NN2$abundance, g=feature
 
 wilcox.test(featureCounts_PA_sense_df_t_2_L_SG17M$abundance ~ featureCounts_PA_sense_df_t_2_L_SG17M$RNA_type2)
 rcompanion::wilcoxonR(x=featureCounts_PA_sense_df_t_2_L_SG17M$abundance, g=featureCounts_PA_sense_df_t_2_L_SG17M$RNA_type2, ci=TRUE)
-
 
 featureCounts_PA_antisense_df_t_2_L_NN2 <- subset(featureCounts_PA_antisense_df_t_2_L, strain == "NN2")
 featureCounts_PA_antisense_df_t_2_L_SG17M <- subset(featureCounts_PA_antisense_df_t_2_L, strain == "SG17M")
@@ -444,20 +409,16 @@ wilcox.test(featureCounts_PA_antisense_df_t_2_L_SG17M$abundance ~ featureCounts_
 rcompanion::wilcoxonR(x=featureCounts_PA_antisense_df_t_2_L_SG17M$abundance, g=featureCounts_PA_antisense_df_t_2_L_SG17M$RNA_type2, ci=TRUE)
 
 # Within and between group variance
-featureCounts_PA_antisense_df_t_SG17M$mixed <- c("SG17M_4h", "SG17M_4h", "SG17M_4h", 
-                                                 "SG17M_8h", "SG17M_8h", "SG17M_8h")
+featureCounts_PA_antisense_df_t_SG17M$mixed <- c("SG17M_4h", "SG17M_4h", "SG17M_4h", "SG17M_8h", "SG17M_8h", "SG17M_8h")
 featureCounts_PA_antisense_df_t_SG17M$strandType <- "Antisense RNA"
 
-featureCounts_PA_sense_df_t_SG17M$mixed <- c("SG17M_4h", "SG17M_4h", "SG17M_4h", 
-                                             "SG17M_8h", "SG17M_8h", "SG17M_8h")
+featureCounts_PA_sense_df_t_SG17M$mixed <- c("SG17M_4h", "SG17M_4h", "SG17M_4h", "SG17M_8h", "SG17M_8h", "SG17M_8h")
 featureCounts_PA_sense_df_t_SG17M$strandType <- "Sense RNA"
 
-featureCounts_PA_antisense_df_t_NN2$mixed <- c("NN2_4h", "NN2_4h", "NN2_4h", 
-                                               "NN2_8h", "NN2_8h", "NN2_8h")
+featureCounts_PA_antisense_df_t_NN2$mixed <- c("NN2_4h", "NN2_4h", "NN2_4h", "NN2_8h", "NN2_8h", "NN2_8h")
 featureCounts_PA_antisense_df_t_NN2$strandType <- "Antisense RNA"
 
-featureCounts_PA_sense_df_t_NN2$mixed <- c("NN2_4h", "NN2_4h", "NN2_4h", 
-                                           "NN2_8h", "NN2_8h", "NN2_8h")
+featureCounts_PA_sense_df_t_NN2$mixed <- c("NN2_4h", "NN2_4h", "NN2_4h", "NN2_8h", "NN2_8h", "NN2_8h")
 featureCounts_PA_sense_df_t_NN2$strandType <- "Sense RNA"
 
 featureCounts_PA_sense_variance <- data.frame(
@@ -468,13 +429,11 @@ featureCounts_PA_sense_variance$ncRNA.undefined <- log2(featureCounts_PA_sense_v
 featureCounts_PA_sense_variance$tRNA <- log2(featureCounts_PA_sense_variance$tRNA)
 featureCounts_PA_sense_variance$rRNA <- log2(featureCounts_PA_sense_variance$rRNA)
 
-featureCounts_PA_sense_variance_log <- select(featureCounts_PA_sense_variance, 
-                                              c(logCDS, logCDS.undefined, 
+featureCounts_PA_sense_variance_log <- select(featureCounts_PA_sense_variance, c(logCDS, logCDS.undefined, 
                                                 ncRNA.undefined, tRNA, rRNA, mixed, strandType))
 hc_sense <- hclust(dist(featureCounts_PA_sense_variance_log))
 ddata_sense <- dendro_data(hc_sense, type = "rectangle")
-featureCounts_PA_antisense_variance <- data.frame(rbind(featureCounts_PA_antisense_df_t_NN2,
-                                                        featureCounts_PA_antisense_df_t_SG17M))
+featureCounts_PA_antisense_variance <- data.frame(rbind(featureCounts_PA_antisense_df_t_NN2, featureCounts_PA_antisense_df_t_SG17M))
 
 featureCounts_PA_antisense_variance$logCDS <- log2(featureCounts_PA_antisense_variance$CDS)
 featureCounts_PA_antisense_variance$logCDS.undefined <- log2(featureCounts_PA_antisense_variance$CDS.undefined)
@@ -492,7 +451,6 @@ vis <- featureCounts_PA_antisense_variance_log$mixed
 
 pcaInd_antisense_1_ind <- fviz_pca_ind(pca_antisense_1)
 pcaInd_antisense_1_ind$data$vis <- vis
-
 
 # Results for Variables (sense)
 res.var.antisense <- get_pca_var(pca_antisense_1)
@@ -545,9 +503,7 @@ res.var.both <- data.frame(rbind(res.var.antisense.sub, res.var.sense.sub))
 rownames(res.var.both) <- NULL
 
 res.var.both.L <- gather(res.var.both, key="Dim", value="PCA", -c("type", "strand", "type2"))
-
-variance_antisense_pca_plot <- 
-  ggplot(pcaInd_antisense_1_ind$data) + 
+variance_antisense_pca_plot <- ggplot(pcaInd_antisense_1_ind$data) + 
   geom_text_repel(aes(x=x, y=y, label=name, color=vis), size= 3, angle=0) + 
   xlab("Dim1 (92.4 %)") + ylab("Dim2 (6.7 %)") +
   theme_pubr(border=TRUE, legend="bottom", base_size=11) + ylim(-2.3, 2.3) + xlim(-7, 8) +
@@ -555,8 +511,7 @@ variance_antisense_pca_plot <-
   theme(legend.position = "none") + 
   geom_label(aes(x=6, y = 2, label = "Antisense"), fill="white")
 
-variance_sense_pca_plot <- 
-  ggplot(pcaInd_sense_1_ind$data) + 
+variance_sense_pca_plot <- ggplot(pcaInd_sense_1_ind$data) + 
   geom_text_repel(aes(x=x, y=y, label=name, color=vis), size= 3, angle=0) +
   xlab("Dim1 (77.3 %)") + ylab("Dim2 (13.7 %)") +
   theme_pubr(border=TRUE, legend="bottom", base_size=11) +
@@ -567,29 +522,20 @@ variance_sense_pca_plot <-
 
 res.var.both.L$PCA <- as.numeric(as.character(res.var.both.L$PCA))
 
-variance_both <- 
-  ggplot(res.var.both.L) + 
-  geom_col(aes(x=Dim, y=PCA, fill=type2)) + 
-  facet_grid(~strand) + 
-  theme_pubr(base_size=11, border=TRUE) + 
-  theme(legend.title = element_blank(), legend.position = "top", 
-        axis.text.x = element_text(angle = 0, vjust = 1, hjust=1),
-        legend.background = element_blank(),
-        legend.box.background = element_rect(colour = "black"),
+variance_both <- ggplot(res.var.both.L) + geom_col(aes(x=Dim, y=PCA, fill=type2)) + 
+  facet_grid(~strand) + theme_pubr(base_size=11, border=TRUE) + 
+  theme(legend.title = element_blank(), legend.position = "top", axis.text.x = element_text(angle = 0, vjust = 1, hjust=1),
+        legend.background = element_blank(), legend.box.background = element_rect(colour = "black"),
         axis.text.y = element_text(size=10)) + 
   xlab(" ") + ylab("Relative abundance") + coord_flip() + guides(fill=guide_legend(ncol=2)) +
   scale_fill_manual(values=c("skyblue4", "darkolivegreen4","gray5",  "tan2", "brown3", 
                              "skyblue3", "darkolivegreen3", "gray60", "tan1", "brown1"))
 
 
-ab <- ggarrange(variance_sense_pca_plot, 
-                variance_antisense_pca_plot,
-                labels=c("A", "B"))
-
+ab <- ggarrange(variance_sense_pca_plot, variance_antisense_pca_plot, labels=c("A", "B"))
 ab2 <- ggarrange(ab, variance_both, nrow = 2, labels=c("A", "C"), heights=c(1,0.5))
 
-#ggsave(ab2, filename = "save_figures/rnA_abundance_variance.tif", 
- #      device="tiff", dpi=600, units="cm", width=21.1, height=20.3)
+# ggsave(ab2, filename = "save_figures/Supplementary_Figure_05.jpeg", device="jpeg", dpi=600, units="cm", width=21.1, height=20.3)
 
 import_gtf_NN2$gene_name3 <- ifelse(import_gtf_NN2$gene_name2 == "", import_gtf_NN2$featureType, import_gtf_NN2$gene_name2)
 my_list_2_NN2 <- import_gtf_NN2$gene_name3
@@ -619,7 +565,6 @@ tRNA_sense_NN2 <- data.frame(tRNA_sense_NN2)
 rownames(tRNA_sense_NN2) <- tRNA_sense_NN2$name2
 tRNA_sense_NN2$name2 <- NULL
 tRNA_sense_NN2 <- tRNA_sense_NN2[(!rownames(tRNA_sense_NN2) %in% remove_empty),]
-
 
 import_gtf_SG17M$gene_name3 <- ifelse(import_gtf_SG17M$gene_name2 == "", import_gtf_SG17M$featureType, import_gtf_SG17M$gene_name2)
 my_list_2_SG17M <- import_gtf_SG17M$gene_name3
@@ -703,50 +648,37 @@ rownames(logcpm_heatmap_df) <- c("(-) Lys-anticodon TTT",
                                  "(+) Thr-anticodon GGT", 
                                  "(+) Trp-anticodon CCA", 
                                  "(+) Tyr-anticodon GTA", 
-                                 "(+) Undet-anticodon NNN", 
+                                 "(+) tmRNA-SsrA", 
                                  "(+) Val-anticodon TAC")
 
-
-tRNA_heatmap <- pheatmap(logcpm_heatmap_df, cutree_rows  = 5, cluster_cols = FALSE, scale = "none",
+tRNA_heatmap <- pheatmap(logcpm_heatmap_df, cutree_rows  = 5, cluster_cols = FALSE, scale = "none", 
                          color = colorRampPalette(c("beige", "navy", "firebrick3"))(10),
                          clustering_distance_cols = "euclidean", angle_col = 45, fontsize = 10)
 
 tRNA_heatmap_gg <- as.ggplot(tRNA_heatmap, scale=1)
-
-#ggsave(tRNA_heatmap_gg, filename="save_figures/tRNA_heatmap.tif", 
- #      device="tiff", dpi=300, units="cm",
-  #     width=18.2, height=18.9)
+# ggsave(tRNA_heatmap_gg, filename = "save_figures/Figure_03.jpeg", dpi=800, units="cm", width=18.2, height=18.9, bg="white")
 
 strReverse <- function(x){sapply(lapply(strsplit(x, NULL), rev), paste, collapse="")}
-
-NN2_codon_usage <- read_delim("NN2_codon_usage.csv", 
-    ";", escape_double = FALSE, trim_ws = TRUE)
+NN2_codon_usage <- read_delim("NN2_codon_usage.csv", ";", escape_double = FALSE, trim_ws = TRUE)
 NN2_codon_usage <- NN2_codon_usage[,1:5]
 NN2_codon_usage$Anticodon1 <- strReverse(NN2_codon_usage$Codon)
 
-library(seqinr)
 nn2_comp <- c()
-for (items in NN2_codon_usage$Anticodon1) { 
-   a = c2s(comp(s2c(items), forceToLower = FALSE))
+for (items in NN2_codon_usage$Anticodon1) { a = c2s(comp(s2c(items), forceToLower = FALSE))
    nn2_comp <- append(nn2_comp, a)}
-
 
 NN2_codon_usage$Anticodon2 <- nn2_comp
 NN2_codon_usage$Anticodon3 <- paste("tRNA-",NN2_codon_usage$AmAcid,NN2_codon_usage$Anticodon2)
 NN2_codon_usage$Anticodon3 <- str_replace_all(NN2_codon_usage$Anticodon3, " ", "")
 NN2_codon_usage <- NN2_codon_usage[1:61,]
 
-
-SG17M_codon_usage <- read_delim("SG17M_codon_usage.csv", 
-    ";", escape_double = FALSE, trim_ws = TRUE)
+SG17M_codon_usage <- read_delim("SG17M_codon_usage.csv", ";", escape_double = FALSE, trim_ws = TRUE)
 SG17M_codon_usage <- SG17M_codon_usage[,1:5]
 SG17M_codon_usage$Anticodon1 <- strReverse(SG17M_codon_usage$Codon)
 
 sg17m_comp <- c()
-for (items in SG17M_codon_usage$Anticodon1) { 
-   a = c2s(comp(s2c(items), forceToLower = FALSE))
+for (items in SG17M_codon_usage$Anticodon1) { a = c2s(comp(s2c(items), forceToLower = FALSE))
    sg17m_comp <- append(sg17m_comp, a)}
-
 
 SG17M_codon_usage$Anticodon2 <- sg17m_comp
 SG17M_codon_usage$Anticodon3 <- paste("tRNA-",SG17M_codon_usage$AmAcid,SG17M_codon_usage$Anticodon2)
@@ -763,17 +695,13 @@ y_antisense_unfiltered_df$Anticodon3 <- rownames(y_antisense_unfiltered_df)
 y_antisense_unfiltered_df$Anticodon3 <- str_replace_all(y_antisense_unfiltered_df$Anticodon3, "-pseudo", "")
 y_antisense_unfiltered_df$Anticodon3 <- str_replace_all(y_antisense_unfiltered_df$Anticodon3, " ", "")
 
-#y_sense_unfiltered_df <- data.frame(rbind(y_sense_unfiltered_df, 
- #                                         y_antisense_unfiltered_df))
-y_sense_unfiltered_df
 missing_ab1 <- setdiff(y_sense_unfiltered_df$Anticodon3, NN2_codon_usage$Anticodon3)
 missing_ab2 <- setdiff(y_sense_unfiltered_df$Anticodon3, SG17M_codon_usage$Anticodon3)
 missing_df1 <- setdiff(NN2_codon_usage$Anticodon3, y_sense_unfiltered_df$Anticodon3)
 missing_df2 <- rep(0,25)
 missing_df3 <- data.frame(cbind(missing_df2, missing_df2, missing_df2, missing_df2, 
                                 missing_df2, missing_df2, missing_df2, missing_df2, 
-                                missing_df2, missing_df2, missing_df2, missing_df2, 
-                                missing_df1)) 
+                                missing_df2, missing_df2, missing_df2, missing_df2, missing_df1)) 
 colnames(missing_df3) <- colnames(y_sense_unfiltered_df)
 y_sense_unfiltered_df2 <- data.frame(rbind(y_sense_unfiltered_df, missing_df3))
 y_sense_unfiltered_df2 <- y_sense_unfiltered_df2[!y_sense_unfiltered_df2$Anticodon3 %in% missing_ab1,]
@@ -860,40 +788,29 @@ rownames(y_sense_unfiltered_df2_NN2_2_rank) <- c("Ala-anticodon AGC",
                                                  "Tyr-anticodon GTA", "Val-anticodon AAC", 
                                                  "Val-anticodon CAC", "Val-anticodon GAC", "Val-anticodon TAC")
 
-codonUsage_trna_heatmap <-
-  pheatmap(y_sense_unfiltered_df2_NN2_2_rank, 
-           scale = "none", cutree_cols = 2,
-           color = colorRampPalette(c("grey",  
-                                      "beige", 
-                                      "firebrick3"))(10), 
+codonUsage_trna_heatmap <- pheatmap(y_sense_unfiltered_df2_NN2_2_rank, scale = "none", cutree_cols = 2,
+           color = colorRampPalette(c("grey", "beige",  "firebrick3"))(10), 
          cluster_rows = TRUE, cutree_rows = 8 ,cellheight = 9, cellwidth = 16, 
          clustering_distance_cols = "euclidean", treeheight_col = 3, treeheight_row = 0,
          angle_col = 45, fontsize = 8)
 codonUsage_tRNA_heatmap_gg <- as.ggplot(codonUsage_trna_heatmap, scale=1)
 
-
-codonUsage_trna_heatmap_alphabet <-
-  pheatmap(y_sense_unfiltered_df2_NN2_2_rank, 
-           scale = "none", cutree_cols = 2,
-           color = colorRampPalette(c("grey",  
-                                      "beige", 
-                                      "firebrick3"))(10), 
+codonUsage_trna_heatmap_alphabet <- pheatmap(y_sense_unfiltered_df2_NN2_2_rank, scale = "none", cutree_cols = 2,
+                                             color = colorRampPalette(c("grey",  "beige", "firebrick3"))(10), 
          cluster_rows = FALSE, cutree_rows = 8 ,cellheight = 9, cellwidth = 16, 
-         clustering_distance_cols = "euclidean", treeheight_col = 3, treeheight_row = 0,
-         angle_col = 45, fontsize = 8)
+         clustering_distance_cols = "euclidean", treeheight_col = 3, treeheight_row = 0, angle_col = 45, fontsize = 8)
 
 codonUsage_tRNA_heatmap_gg <- as.ggplot(codonUsage_trna_heatmap, scale=1)
 codonUsage_tRNA_heatmap_alphabet_gg <- as.ggplot(codonUsage_trna_heatmap_alphabet, scale=1)
 
-#ggsave(codonUsage_tRNA_heatmap_gg, filename="save_figures/codon_tRNA_heatmap_sorted_alphabet.tif", 
- #      device="tiff", dpi=300, units="cm", width=22, height=24) 
-    
+#ggsave(codonUsage_tRNA_heatmap_gg, filename="save_figures/Figure_04.jpeg", 
+  #     device="jpeg", dpi=800, units="cm", width=22, height=24, bg="white") 
+
 #ggsave(codonUsage_tRNA_heatmap_alphabet_gg,
- #      filename="save_figures/codon_tRNA_heatmap_sorted_alphabet.tif", 
-  #     device="tiff", dpi=300, units="cm", width=22, height=24) 
+    #   filename="save_figures/Supplementary_Figure_07.jpeg", 
+     #  device="jpeg", dpi=800, units="cm", width=22, height=24, bg="white") 
 
 corPlot1 <- cor(y_sense_unfiltered_df2_NN2_1, method = "spearman")
-
 corPlot1pval <- rcorr(as.matrix(y_sense_unfiltered_df2_NN2_1), type = "spearman")
 corPlot1pval_df <- data.frame(corPlot1pval$P)
 corPlot1pval_df$a <- rownames(corPlot1pval_df)
@@ -905,9 +822,7 @@ corPlot1_df$a <- rownames(corPlot1_df)
 corPlot1_df_L <- gather(corPlot1_df, key="Sample", value="scale", -a)
 corPlot1_df_L <- subset(corPlot1_df_L, scale < 1.0000000)
 
-
-pval_cor <-
-  ggplot(corPlot1pval_df_L_noNA) +
+pval_cor <- ggplot(corPlot1pval_df_L_noNA) +
   geom_jitter(aes(x=a, y=scale, colour=Sample), size=3, alpha=0.8, width = 0.2) +
   scale_colour_manual(values = c("yellow", "yellow", "yellow", 
                                  "orange", "orange", "orange", "red", "pink",
@@ -918,9 +833,7 @@ pval_cor <-
   geom_hline(yintercept = 0.05, linetype = "dashed") +
   theme(legend.title=element_blank())
 
-
-coff_cor <-
-  ggplot(corPlot1_df_L) +
+coff_cor <-ggplot(corPlot1_df_L) +
   geom_jitter(aes(x=a, y=scale, colour=Sample), size=3, alpha=0.8, width = 0.2) +
   scale_colour_manual(values = c("yellow", "yellow", "yellow", 
                                  "orange", "orange", "orange", "red", "pink",
@@ -935,8 +848,25 @@ coff_cor <-
   geom_label(aes(x=14, y=0.8), label="high", size=3.2)+
   theme(legend.title=element_blank(), axis.text.y = element_blank())
 
+data_matrix_1 <- cor(y_sense_unfiltered_df2_NN2_1, method = "spearman")
 
-cor_plot <- ggarrange(pval_cor, coff_cor, common.legend = TRUE, legend = "right")
+cor.mtest <- function(mat, ...) {
+    mat <- as.matrix(mat)
+    n <- ncol(mat)
+    p.mat<- matrix(NA, n, n)
+    diag(p.mat) <- 0
+    for (i in 1:(n - 1)) {
+        for (j in (i + 1):n) {
+            tmp <- cor.test(mat[, i], mat[, j], ...)
+            p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+        }
+    }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  p.mat}
 
-#ggsave(cor_plot, filename="save_figures/spearman_plot.tif", 
- #      width=23.9, height=10.9, device="tiff", dpi=300, units="cm") 
+# matrix of the p-value of the correlation
+p.mat <- cor.mtest(data_matrix_1)
+#jpeg(filename = "save_figures/Supplementary_figure_08.jpeg", units="cm", res=800, width=24, height=24)
+corrplot(data_matrix_1, method="square", type="lower", order="hclust", number.cex = 0.7, 
+         addCoef.col = "black", tl.col="black", tl.cex = 0.7, tl.srt = 40, diag=FALSE)
+# dev.off()
