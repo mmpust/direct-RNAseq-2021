@@ -134,28 +134,21 @@ logcpm_sense <- cpm(y_sense, log=TRUE)
 logcpm_antisense_df <- data.frame(logcpm_antisense)
 logcpm_sense_df <- data.frame(logcpm_sense)
 
-# Ordination #
+# Ordination ####
 set.seed(2)
 # samples as row
 logcpm_antisense_saw <- t(logcpm_antisense)
 logcpm_sense_saw <- t(logcpm_sense)
-
 mds_rna_antisense <- metaMDS(logcpm_antisense_saw, distance="bray", k=2, trymax=100, autotransform=FALSE)
 mds_rna_sense <- metaMDS(logcpm_sense_saw, distance="bray", k=2, trymax=100, autotransform=FALSE)
 
-stressplot(mds_rna_antisense)
-stressplot(mds_rna_sense)
+# stressplot(mds_rna_antisense)
+# stressplot(mds_rna_sense)
 
 data.scores_antisense = as.data.frame(scores(mds_rna_antisense))
 data.scores_sense = as.data.frame(scores(mds_rna_sense))
-rownames(data.scores_antisense)
-#rownames(data.scores_sense)
-
-data.scores_antisense$time <- c("4h", "4h", "4h", "8h", "8h", "8h", 
-                                "4h", "4h", "4h", "8h", "8h", "8h")
-data.scores_antisense$isolate <- c("NN2", "NN2", "NN2", "NN2", "NN2", "NN2", 
-                                   "SG17M", "SG17M", "SG17M", "SG17M", "SG17M", "SG17M")
-
+data.scores_antisense$time <- c("4h", "4h", "4h", "8h", "8h", "8h", "4h", "4h", "4h", "8h", "8h", "8h")
+data.scores_antisense$isolate <- c("NN2", "NN2", "NN2", "NN2", "NN2", "NN2", "SG17M", "SG17M", "SG17M", "SG17M", "SG17M", "SG17M")
 data.scores_sense$time <- data.scores_antisense$time
 data.scores_sense$isolate <- data.scores_antisense$isolate
 
@@ -174,7 +167,8 @@ antisense <- ggplot() + geom_point(data=data.scores_antisense, aes(x=NMDS1, y=NM
 nmds_all <- ggarrange(sense, antisense, nrow=1, ncol=2, labels=c("a", "b"), common.legend = TRUE, legend = "right")
 #ggsave(nmds_all, file="nmds_ont_plot.tif", device="tiff", dpi=300, width=8.69, height=3.96)
 
-# PCA 
+
+# PCA ####
 set.seed(2)
 pca_patternRec_antisense <- prcomp(logcpm_antisense_saw, center = TRUE, scale. = FALSE)
 pca_patternRec_sense <- prcomp(logcpm_sense_saw, center = TRUE, scale. = FALSE)
@@ -185,42 +179,36 @@ eig_var_sense <- fviz_eig(pca_patternRec_sense)
 eig_var_sense$data$type = "sense"
 
 eig_var_both <- data.frame(rbind(eig_var_antisense$data, eig_var_sense$data))
-eig_var_both
+
 eig_var_both_dim2 <- subset(eig_var_both, dim == "2" | dim == "1")
 eig_var_both_dim2$dimension <- ifelse(eig_var_both_dim2$dim == "1", "Dim1", "Dim2") 
 
-time <- c("4h", "4h", "4h", "8h", "8h", "8h", 
-          "4h", "4h", "4h", "8h", "8h", "8h")
-isolate <- c("NN2", "NN2", "NN2", "NN2", "NN2", "NN2", 
-             "SG17M", "SG17M", "SG17M", "SG17M", "SG17M", "SG17M")
+time <- c("4h", "4h", "4h", "8h", "8h", "8h", "4h", "4h", "4h", "8h", "8h", "8h")
+isolate <- c("NN2", "NN2", "NN2", "NN2", "NN2", "NN2", "SG17M", "SG17M", "SG17M", "SG17M", "SG17M", "SG17M")
 pcaInd_time_antisense <- fviz_pca_ind(pca_patternRec_antisense) 
 pcaInd_time_antisense$data$isolate <- isolate
 pcaInd_time_antisense$data$time <- time
-
 
 pcaInd_time_sense <- fviz_pca_ind(pca_patternRec_sense) 
 pcaInd_time_sense$data$isolate <- isolate
 pcaInd_time_sense$data$time <- time
 
-
 eig_var_antisense_sense_plot <- ggplot(eig_var_both_dim2) +
   geom_col(aes(x=type, y=eig, fill=type), alpha = 0.8) + xlab(" ") + ylab("Explained variance (in %)") +
   scale_fill_manual(values=c("black", "grey60")) +
   theme_pubr(border=TRUE, legend = "none", base_size = 9) + facet_wrap(~dimension) +
-  coord_flip()
+  coord_flip() + theme(axis.text = element_text(size=7), axis.title = element_text(size=7)) 
 
-
-sense_pca_plot <-
-  ggplot(pcaInd_time_sense$data) +
+sense_pca_plot <- ggplot(pcaInd_time_sense$data) +
   geom_point(aes(x=x, y=y, color=isolate, shape=time), size=3, alpha=1) +
   xlab("Dim1 (34 %)") + ylab("Dim2 (21 %)") +
   theme_pubr(border=TRUE, legend="bottom", base_size = 9) +
   xlim(-40, 60) + ylim(-40, 55) +
   scale_color_manual(values=c("darkred", "darkblue", "orange")) +
   geom_hline(yintercept = 0.00, alpha=0.5) + geom_vline(xintercept = 0.00, alpha=0.5) +
-  theme(legend.title = element_blank()) + 
-  geom_label(aes(x=-20, y = 50, label = "sense"), fill="white", size=)
-
+  theme(legend.title = element_blank(), axis.text = element_text(size=7), axis.title = element_text(size=7), 
+        legend.text = element_text(size=6)) +
+  geom_label(aes(x=-20, y = 50, label = "sense"), fill="white", size=2.3)
 
 antisense_pca_plot <-
   ggplot(pcaInd_time_antisense$data) +
@@ -230,21 +218,15 @@ antisense_pca_plot <-
   xlim(-40, 60) + ylim(-40, 55) +
   scale_color_manual(values=c("darkred", "darkblue", "orange")) +
   geom_hline(yintercept = 0.00, alpha=0.5) + geom_vline(xintercept = 0.00, alpha=0.5) +
-  theme(legend.title = element_blank()) + 
-  geom_label(aes(x=-20, y = 50, label = "antisense"), fill="white", size=3)
-
+  theme(legend.title = element_blank(), axis.text = element_text(size=7), axis.title = element_text(size=7), 
+        legend.text = element_text(size=6)) + 
+  geom_label(aes(x=-20, y = 50, label = "antisense"), fill="white", size=2.3)
 
 a <- ggarrange(sense_pca_plot, antisense_pca_plot, nrow=1, ncol=2, labels=c("A", "B"),
-               common.legend = TRUE, font.label = list(size = 12, color = "black"),
-               legend = "bottom")
-
-a2 <- ggarrange(eig_var_antisense_sense_plot, nrow = 1, ncol = 1, labels = "C",
-                font.label = list(size = 12, color = "black"))
-
+               common.legend = TRUE, font.label = list(color = "black", size=8), legend = "bottom")
+a2 <- ggarrange(eig_var_antisense_sense_plot, nrow = 1, ncol = 1, labels = "C", font.label = list(color = "black", size=8))
 a3 <- ggarrange(a, a2, nrow=2, heights = c(1,0.4))
-
-#ggsave(a3, file="save_figures/pca_ont_plot.tif", device="tiff", width=16, height=13, dpi=600, units = "cm")
-
+# ggsave(a3, file="save_figures/Figure_08.jpeg", device="jpeg", width=12, height=12, dpi=800, units = "cm", bg="white")
 
 # Results for Variables (sense)
 res.var.sense <- get_pca_var(pca_patternRec_sense)
@@ -285,16 +267,10 @@ rownames(logcpm_antisense_df_h) <- c("rihB", "pntAA", "aam", "madA", "yycB", "me
                                     "ugpQ", "lasR", "gloC", "slyB", "4786592", "ftsZ", "adh1", "ppx",
                                      "mcbR", "852731", "945784", "merR", "5244051")
 
-heatmap_genes_4h_antisense <- pheatmap(logcpm_antisense_df_h, angle_col = "45", fontsize = 8, 
-                                       cellwidth = 20, cellheight = 19, scale = "none",
+heatmap_genes_4h_antisense <- pheatmap(logcpm_antisense_df_h, angle_col = "45", fontsize = 8, cellwidth = 20, cellheight = 19, scale = "none",
                                        color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)),
-                                   breaks = breaksList,
-                                   show_colnames = T, cutree_cols = 2, legend = T, treeheight_col = 5, treeheight_row = 0)
+                                   breaks = breaksList, show_colnames = T, cutree_cols = 2, legend = T, treeheight_col = 5, treeheight_row = 0)
 
 heatmap_genes_4h_antisense_gg <- as.ggplot(heatmap_genes_4h_antisense, scale=1)
-
-heatmaps <- ggarrange(heatmap_genes_4h_sense_gg, heatmap_genes_4h_antisense_gg, nrow=1,
-                      labels=c("A", "B"), common.legend = TRUE, legend = "top")
-
-
-# ggsave(heatmaps, file="save_figures/heatmap_CDS.tif", device="tiff", dpi=300, width=25, height=24, units = "cm")
+heatmaps <- ggarrange(heatmap_genes_4h_sense_gg, heatmap_genes_4h_antisense_gg, nrow=1, labels=c("A", "B"), common.legend = TRUE, legend = "top")
+# ggsave(heatmaps, file="save_figures/Figure_09.jpeg", device="jpeg", dpi=300, width=25, height=24, units = "cm", bg = "white")
