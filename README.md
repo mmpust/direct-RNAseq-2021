@@ -1,4 +1,4 @@
-**Direct RNA nanopore sequencing of Pseudomonas aeruginosa clone C transcriptomes**<br/>
+**Direct RNA nanopore sequencing of Pseudomonas aeruginosa clone C transcriptomes**<br/><br/>
 Marie-Madlen Pust<sup>1,2</sup>, Colin Davenport<sup>3</sup>, Lutz Wiehlmann<sup>3</sup>, Burkhard Tümmler<sup>1,2*</sup> 
 <br/><br/>
 <sup>1</sup>Department of Paediatric Pneumology, Allergology, and Neonatology, Hannover Medical School, Germany <br/>
