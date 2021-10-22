@@ -1,41 +1,47 @@
-# title: "most_expressed"
-# author: "Marie Pust"
-# date: "17 6 2021"
+# title: "Nanopore Antisense Hotspots"
+# author: "Marie-Madlen Pust"
+# date: "22 10 2021"
 
 # Clean environment
 rm(list = ls())
 
-library(rlist)
-library(ggplot2)
-library(readr)
-library(readxl)
-library(Rsubread)
-library(edgeR)
-library(stringr)
-library(tidyr)
-library(ggpubr)
-library(circlize)
-library(dplyr)
-library(Rsamtools)
-library(GenomicRanges)
-library(GenomicAlignments)
-library(vegan)
-library(rcompanion)
 
+
+############################################################################################################
+# clean global environment
+rm(list=ls())
+
+# set working directory
 setwd("/R")
 
-input_bam_NN2<- list.files(
-  path = "NN2_run/d_raw_bam",
-  pattern = ".bam", full.names = TRUE)
+############################################################################################################
 
-input_bam_sg17m <- list.files(
-  path = "SG17M_run/d_raw_bam",
-  pattern = ".bam", full.names = TRUE)
+# define global variables
+# set global seed
+set.seed(111)
 
+# function for installing/importing packages
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, 'Package'])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)}
+
+# store required packages
+packages <- c('rlist','ggplot2','readr','readxl','Rsubread','edgeR','stringr','tidyr','ggpubr','circlize','dplyr','Rsamtools', 'GenomicRanges',
+              'GenomicAlignments','vegan','rcompanion')
+
+# store paths to files
 UserDefinedAnnotationRef <- "NN2_ENO_SG17M_curated.gtf"
 UserDefinedAnnotationRef_NN2 <- "NN2_ENO_curated.gtf"
 UserDefinedAnnotationRef_sg17m <- "SG17M_ENO_curated.gtf"
 
+############################################################################################################
+# load required R packages
+ipak(packages)
+############################################################################################################
+
+# import and clean annotation file, NN2
 import_gtf_NN2 <- read.table(UserDefinedAnnotationRef_NN2, sep = '\t', header = FALSE)
 colnames(import_gtf_NN2) <- c("Isolate", "database", "featureType", "start", "end", "V6", "strandType", "V8", "V9")
 import_gtf_NN2$V6 <- NULL
@@ -60,7 +66,7 @@ nn2_accessory_bed <- select(nn2_accessory, c(start, end))
 nn2_tRNA <- subset(import_gtf_NN2, gene_name3 == "tRNA")
 nn2_tRNA_bed <- select(nn2_accessory, c(start, end))
 
-
+# import and clean annotation file, SG17M
 import_gtf_sg17m <- read.table(UserDefinedAnnotationRef_sg17m, sep = '\t', header = FALSE)
 colnames(import_gtf_sg17m) <- c("Isolate", "database", "featureType", "start", "end", "V6", "strandType", "V8", "V9")
 import_gtf_sg17m$V6 <- NULL
@@ -84,111 +90,111 @@ sg17m_accessory_bed <- select(sg17m_accessory, c(start, end))
 sg17m_tRNA <- subset(import_gtf_sg17m, gene_name3 == "tRNA")
 sg17m_tRNA_bed <- select(sg17m_accessory, c(start, end))
 
-featureCounts_PA_antisenseNN2 <- 
-  featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2, 
+############################################################################################################
+# import NN2 bam files and count/normalise alignments
+input_bam_NN2<- list.files(path = "NN2_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
+
+# antisense counting, NN2
+featureCounts_PA_antisenseNN2 <- featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2, 
                 isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
                 GTF.featureType = c("exon", "CDS"), strandSpecific = 2, isLongRead = TRUE, 
                 useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
                 countMultiMappingReads = TRUE)
-
-featureCounts_PA_senseNN2 <- 
-  featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2,
-                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
-                GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE, 
-                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
-                countMultiMappingReads = TRUE)
-
-featureCounts_PA_antisensesg17m <- 
-  featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m, 
-                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
-                GTF.featureType = c("exon", "CDS"), strandSpecific = 2, isLongRead = TRUE, 
-                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
-                countMultiMappingReads = TRUE)
-
-featureCounts_PA_sensesg17m <- 
-  featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m,
-                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
-                GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE, 
-                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
-                countMultiMappingReads = TRUE)
-
-featureCounts_PA_antisense_df_NN2 <- featureCounts_PA_antisenseNN2$counts
-featureCounts_PA_antisense_df_NN2 <- data.frame(featureCounts_PA_antisense_df_NN2)
-featureCounts_PA_sense_df_NN2 <- featureCounts_PA_senseNN2$counts
-featureCounts_PA_sense_df_NN2 <- data.frame(featureCounts_PA_sense_df_NN2)
-colnames(featureCounts_PA_antisense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", 
-                                                 "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
-colnames(featureCounts_PA_sense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", 
-                                             "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
-
-featureCounts_PA_antisense_df_sg17m <- featureCounts_PA_antisensesg17m$counts
-featureCounts_PA_antisense_df_sg17m <- data.frame(featureCounts_PA_antisense_df_sg17m)
-featureCounts_PA_sense_df_sg17m <- featureCounts_PA_sensesg17m$counts
-featureCounts_PA_sense_df_sg17m <- data.frame(featureCounts_PA_sense_df_sg17m)
-colnames(featureCounts_PA_antisense_df_sg17m) <- c("sg17m_4h_BR1", "sg17m_4h_BR2", "sg17m_4h_BR3", 
-                                                 "sg17m_8h_BR1", "sg17m_8h_BR2", "sg17m_8h_BR3")
-colnames(featureCounts_PA_sense_df_sg17m) <- c("sg17m_4h_BR1", "sg17m_4h_BR2", "sg17m_4h_BR3", 
-                                             "sg17m_8h_BR1", "sg17m_8h_BR2", "sg17m_8h_BR3")
-
-featureCounts_PA_sense_df_NN2_norm <- featureCounts_PA_sense_df_NN2
-featureCounts_PA_sense_df_NN2_norm_4h <- featureCounts_PA_sense_df_NN2_norm[,1:3]
-featureCounts_PA_sense_df_NN2_norm_4h_1 <- DGEList(counts=featureCounts_PA_sense_df_NN2_norm_4h)
-featureCounts_PA_sense_df_NN2_norm_4h_2 <- calcNormFactors(featureCounts_PA_sense_df_NN2_norm_4h_1, 
-                                                           method="TMM")
-featureCounts_PA_sense_df_NN2_norm_4h_3 <- cpm(featureCounts_PA_sense_df_NN2_norm_4h_2, log=FALSE)
-featureCounts_PA_sense_df_NN2_norm_4h_4 <- data.frame(featureCounts_PA_sense_df_NN2_norm_4h_3)
-
-featureCounts_PA_sense_df_NN2_norm_8h <- featureCounts_PA_sense_df_NN2_norm[,4:6]
-featureCounts_PA_sense_df_NN2_norm_8h_1 <- DGEList(counts=featureCounts_PA_sense_df_NN2_norm_8h)
-featureCounts_PA_sense_df_NN2_norm_8h_2 <- calcNormFactors(featureCounts_PA_sense_df_NN2_norm_8h_1, 
-                                                           method="TMM")
-featureCounts_PA_sense_df_NN2_norm_8h_3 <- cpm(featureCounts_PA_sense_df_NN2_norm_8h_2, log=FALSE)
-featureCounts_PA_sense_df_NN2_norm_8h_4 <- data.frame(featureCounts_PA_sense_df_NN2_norm_8h_3)
 
 featureCounts_PA_antisense_df_NN2_norm <- featureCounts_PA_antisense_df_NN2
 featureCounts_PA_antisense_df_NN2_norm_4h <- featureCounts_PA_antisense_df_NN2_norm[,1:3]
 featureCounts_PA_antisense_df_NN2_norm_4h_1 <- DGEList(counts=featureCounts_PA_antisense_df_NN2_norm_4h)
-featureCounts_PA_antisense_df_NN2_norm_4h_2 <- calcNormFactors(featureCounts_PA_antisense_df_NN2_norm_4h_1,
-                                                               method="TMM")
+featureCounts_PA_antisense_df_NN2_norm_4h_2 <- calcNormFactors(featureCounts_PA_antisense_df_NN2_norm_4h_1, method="TMM")
 featureCounts_PA_antisense_df_NN2_norm_4h_3 <- cpm(featureCounts_PA_antisense_df_NN2_norm_4h_2, log=FALSE)
 featureCounts_PA_antisense_df_NN2_norm_4h_4 <- data.frame(featureCounts_PA_antisense_df_NN2_norm_4h_3)
 featureCounts_PA_antisense_df_NN2_norm_8h <- featureCounts_PA_antisense_df_NN2_norm[,4:6]
 featureCounts_PA_antisense_df_NN2_norm_8h_1 <- DGEList(counts=featureCounts_PA_antisense_df_NN2_norm_8h)
-featureCounts_PA_antisense_df_NN2_norm_8h_2 <- calcNormFactors(featureCounts_PA_antisense_df_NN2_norm_8h_1,
-                                                               method="TMM")
+featureCounts_PA_antisense_df_NN2_norm_8h_2 <- calcNormFactors(featureCounts_PA_antisense_df_NN2_norm_8h_1, method="TMM")
 featureCounts_PA_antisense_df_NN2_norm_8h_3 <- cpm(featureCounts_PA_antisense_df_NN2_norm_8h_2, log=FALSE)
 featureCounts_PA_antisense_df_NN2_norm_8h_4 <- data.frame(featureCounts_PA_antisense_df_NN2_norm_8h_3)
 
-featureCounts_PA_sense_df_sg17m_norm <- featureCounts_PA_sense_df_sg17m
-featureCounts_PA_sense_df_sg17m_norm_4h <- featureCounts_PA_sense_df_sg17m_norm[,1:3]
-featureCounts_PA_sense_df_sg17m_norm_4h_1 <- DGEList(counts=featureCounts_PA_sense_df_sg17m_norm_4h)
-featureCounts_PA_sense_df_sg17m_norm_4h_2 <- calcNormFactors(featureCounts_PA_sense_df_sg17m_norm_4h_1, 
-                                                             method="TMM")
-featureCounts_PA_sense_df_sg17m_norm_4h_3 <- cpm(featureCounts_PA_sense_df_sg17m_norm_4h_2, log=FALSE)
-featureCounts_PA_sense_df_sg17m_norm_4h_4 <- data.frame(featureCounts_PA_sense_df_sg17m_norm_4h_3)
-featureCounts_PA_sense_df_sg17m_norm_8h <- featureCounts_PA_sense_df_sg17m_norm[,4:6]
-featureCounts_PA_sense_df_sg17m_norm_8h_1 <- DGEList(counts=featureCounts_PA_sense_df_sg17m_norm_8h)
-featureCounts_PA_sense_df_sg17m_norm_8h_2 <- calcNormFactors(featureCounts_PA_sense_df_sg17m_norm_8h_1, 
-                                                             method="TMM")
-featureCounts_PA_sense_df_sg17m_norm_8h_3 <- cpm(featureCounts_PA_sense_df_sg17m_norm_8h_2, log=FALSE)
-featureCounts_PA_sense_df_sg17m_norm_8h_4 <- data.frame(featureCounts_PA_sense_df_sg17m_norm_8h_3)
+featureCounts_PA_antisense_df_NN2 <- featureCounts_PA_antisenseNN2$counts
+featureCounts_PA_antisense_df_NN2 <- data.frame(featureCounts_PA_antisense_df_NN2)
+colnames(featureCounts_PA_antisense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
 
+# sense counting, NN2
+featureCounts_PA_senseNN2 <- featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2,
+                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
+                GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE, 
+                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
+                countMultiMappingReads = TRUE)
+
+
+featureCounts_PA_sense_df_NN2_norm <- featureCounts_PA_sense_df_NN2
+featureCounts_PA_sense_df_NN2_norm_4h <- featureCounts_PA_sense_df_NN2_norm[,1:3]
+featureCounts_PA_sense_df_NN2_norm_4h_1 <- DGEList(counts=featureCounts_PA_sense_df_NN2_norm_4h)
+featureCounts_PA_sense_df_NN2_norm_4h_2 <- calcNormFactors(featureCounts_PA_sense_df_NN2_norm_4h_1, method="TMM")
+featureCounts_PA_sense_df_NN2_norm_4h_3 <- cpm(featureCounts_PA_sense_df_NN2_norm_4h_2, log=FALSE)
+featureCounts_PA_sense_df_NN2_norm_4h_4 <- data.frame(featureCounts_PA_sense_df_NN2_norm_4h_3)
+featureCounts_PA_sense_df_NN2_norm_8h <- featureCounts_PA_sense_df_NN2_norm[,4:6]
+featureCounts_PA_sense_df_NN2_norm_8h_1 <- DGEList(counts=featureCounts_PA_sense_df_NN2_norm_8h)
+featureCounts_PA_sense_df_NN2_norm_8h_2 <- calcNormFactors(featureCounts_PA_sense_df_NN2_norm_8h_1, method="TMM")
+featureCounts_PA_sense_df_NN2_norm_8h_3 <- cpm(featureCounts_PA_sense_df_NN2_norm_8h_2, log=FALSE)
+featureCounts_PA_sense_df_NN2_norm_8h_4 <- data.frame(featureCounts_PA_sense_df_NN2_norm_8h_3)
+
+featureCounts_PA_sense_df_NN2 <- featureCounts_PA_senseNN2$counts
+featureCounts_PA_sense_df_NN2 <- data.frame(featureCounts_PA_sense_df_NN2)
+colnames(featureCounts_PA_sense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
+
+
+############################################################################################################
+# import SG17M bam files and count/normalise alignments
+input_bam_sg17m <- list.files(path = "SG17M_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
+
+
+# antisense counting, SG17M
+featureCounts_PA_antisensesg17m <- featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m, 
+                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
+                GTF.featureType = c("exon", "CDS"), strandSpecific = 2, isLongRead = TRUE, 
+                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
+                countMultiMappingReads = TRUE)
 featureCounts_PA_antisense_df_sg17m_norm <- featureCounts_PA_antisense_df_sg17m
 featureCounts_PA_antisense_df_sg17m_norm_4h <- featureCounts_PA_antisense_df_sg17m_norm[,1:3]
 featureCounts_PA_antisense_df_sg17m_norm_4h_1 <- DGEList(counts=featureCounts_PA_antisense_df_sg17m_norm_4h)
-featureCounts_PA_antisense_df_sg17m_norm_4h_2 <- calcNormFactors(featureCounts_PA_antisense_df_sg17m_norm_4h_1,
-                                                                 method="TMM")
+featureCounts_PA_antisense_df_sg17m_norm_4h_2 <- calcNormFactors(featureCounts_PA_antisense_df_sg17m_norm_4h_1, method="TMM")
 featureCounts_PA_antisense_df_sg17m_norm_4h_3 <- cpm(featureCounts_PA_antisense_df_sg17m_norm_4h_2, log=FALSE)
 featureCounts_PA_antisense_df_sg17m_norm_4h_4 <- data.frame(featureCounts_PA_antisense_df_sg17m_norm_4h_3)
 featureCounts_PA_antisense_df_sg17m_norm_8h <- featureCounts_PA_antisense_df_sg17m_norm[,4:6]
 featureCounts_PA_antisense_df_sg17m_norm_8h_1 <- DGEList(counts=featureCounts_PA_antisense_df_sg17m_norm_8h)
-featureCounts_PA_antisense_df_sg17m_norm_8h_2 <- calcNormFactors(featureCounts_PA_antisense_df_sg17m_norm_8h_1,
-                                                                 method="TMM")
+featureCounts_PA_antisense_df_sg17m_norm_8h_2 <- calcNormFactors(featureCounts_PA_antisense_df_sg17m_norm_8h_1,method="TMM")
 featureCounts_PA_antisense_df_sg17m_norm_8h_3 <- cpm(featureCounts_PA_antisense_df_sg17m_norm_8h_2, log=FALSE)
 featureCounts_PA_antisense_df_sg17m_norm_8h_4 <- data.frame(featureCounts_PA_antisense_df_sg17m_norm_8h_3)
 
+featureCounts_PA_antisense_df_sg17m <- featureCounts_PA_antisensesg17m$counts
+featureCounts_PA_antisense_df_sg17m <- data.frame(featureCounts_PA_antisense_df_sg17m)
+colnames(featureCounts_PA_antisense_df_sg17m) <- c("sg17m_4h_BR1", "sg17m_4h_BR2", "sg17m_4h_BR3", "sg17m_8h_BR1", "sg17m_8h_BR2", "sg17m_8h_BR3")
 
-# dev.off()
+
+# sense counting, SG17M
+featureCounts_PA_sensesg17m <- featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m,
+                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
+                GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE, 
+                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
+                countMultiMappingReads = TRUE)
+featureCounts_PA_sense_df_sg17m_norm <- featureCounts_PA_sense_df_sg17m
+featureCounts_PA_sense_df_sg17m_norm_4h <- featureCounts_PA_sense_df_sg17m_norm[,1:3]
+featureCounts_PA_sense_df_sg17m_norm_4h_1 <- DGEList(counts=featureCounts_PA_sense_df_sg17m_norm_4h)
+featureCounts_PA_sense_df_sg17m_norm_4h_2 <- calcNormFactors(featureCounts_PA_sense_df_sg17m_norm_4h_1, method="TMM")
+featureCounts_PA_sense_df_sg17m_norm_4h_3 <- cpm(featureCounts_PA_sense_df_sg17m_norm_4h_2, log=FALSE)
+featureCounts_PA_sense_df_sg17m_norm_4h_4 <- data.frame(featureCounts_PA_sense_df_sg17m_norm_4h_3)
+featureCounts_PA_sense_df_sg17m_norm_8h <- featureCounts_PA_sense_df_sg17m_norm[,4:6]
+featureCounts_PA_sense_df_sg17m_norm_8h_1 <- DGEList(counts=featureCounts_PA_sense_df_sg17m_norm_8h)
+featureCounts_PA_sense_df_sg17m_norm_8h_2 <- calcNormFactors(featureCounts_PA_sense_df_sg17m_norm_8h_1, method="TMM")
+featureCounts_PA_sense_df_sg17m_norm_8h_3 <- cpm(featureCounts_PA_sense_df_sg17m_norm_8h_2, log=FALSE)
+featureCounts_PA_sense_df_sg17m_norm_8h_4 <- data.frame(featureCounts_PA_sense_df_sg17m_norm_8h_3)
+
+featureCounts_PA_sense_df_sg17m <- featureCounts_PA_sensesg17m$counts
+featureCounts_PA_sense_df_sg17m <- data.frame(featureCounts_PA_sense_df_sg17m)
+colnames(featureCounts_PA_sense_df_sg17m) <- c("sg17m_4h_BR1", "sg17m_4h_BR2", "sg17m_4h_BR3", "sg17m_8h_BR1", "sg17m_8h_BR2", "sg17m_8h_BR3")
+
+
+
+############################################################################################################
 # circular plots, NN2, 4h
 antisense_NN2_norm_4h_circ <- cpm(featureCounts_PA_antisense_df_NN2, log=TRUE)
 antisense_NN2_norm_4h_circ <- data.frame(antisense_NN2_norm_4h_circ)[,c(1:3)]
@@ -230,54 +236,11 @@ color_NN2_BR3_4h <- with(antisense_NN2_norm_4h_circ_BR3,
                                                                     ifelse(NN2_4h_BR3 < 6, "palegoldenrod",
                                                                            "NA"))))))
 
-# circular plots, NN2, 8h
-antisense_NN2_norm_8h_circ <- cpm(featureCounts_PA_antisense_df_NN2, log=TRUE)
-antisense_NN2_norm_8h_circ <- data.frame(antisense_NN2_norm_8h_circ)[,c(4:6)]
-antisense_NN2_norm_8h_circ_gtf <- subset(import_gtf_NN2, transcript_id %in% rownames(antisense_NN2_norm_8h_circ))
-antisense_NN2_norm_8h_circ_gtf <- antisense_NN2_norm_8h_circ_gtf[order(antisense_NN2_norm_8h_circ_gtf$transcript_id),]
-antisense_NN2_norm_8h_circ <- antisense_NN2_norm_8h_circ[order(rownames(antisense_NN2_norm_8h_circ)),]
-
-antisense_NN2_norm_8h_circ$start <- antisense_NN2_norm_8h_circ_gtf$start
-antisense_NN2_norm_8h_circ$end <- antisense_NN2_norm_8h_circ_gtf$end
-antisense_NN2_norm_8h_circ$isolate <- "NN2"
-
-antisense_NN2_norm_8h_circ_BR1 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR1))
-color_NN2_BR1_8h <- with(antisense_NN2_norm_8h_circ_BR1,
-                                             ifelse(NN2_8h_BR1 >= 12, "palegreen4", 
-                                               ifelse(NN2_8h_BR1 < 12 & NN2_8h_BR1 >= 10, "palegreen3", 
-                                                      ifelse(NN2_8h_BR1 < 10 & NN2_8h_BR1 >= 9, "palegreen2",
-                                                             ifelse(NN2_8h_BR1 < 9 & NN2_8h_BR1 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_8h_BR1 < 6, "palegoldenrod",
-                                                                           "NA"))))))
-
-antisense_NN2_norm_8h_circ_BR2 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR2))
-color_NN2_BR2_8h <- with(antisense_NN2_norm_8h_circ_BR2,
-                                             ifelse(NN2_8h_BR2 >= 12, "palegreen4", 
-                                               ifelse(NN2_8h_BR2 < 12 & NN2_8h_BR2 >= 10, "palegreen3", 
-                                                      ifelse(NN2_8h_BR2 < 10 & NN2_8h_BR2 >= 9, "palegreen2",
-                                                             ifelse(NN2_8h_BR2 < 9 & NN2_8h_BR2 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_8h_BR2 < 6, "palegoldenrod",
-                                                                           "NA"))))))
-
-antisense_NN2_norm_8h_circ_BR3 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR3))
-color_NN2_BR3_8h <- with(antisense_NN2_norm_8h_circ_BR3,
-                                             ifelse(NN2_8h_BR3 >= 12, "palegreen4", 
-                                               ifelse(NN2_8h_BR3 < 12 & NN2_8h_BR3 >= 10, "palegreen3", 
-                                                      ifelse(NN2_8h_BR3 < 10 & NN2_8h_BR3 >= 9, "palegreen2",
-                                                             ifelse(NN2_8h_BR3 < 9 & NN2_8h_BR3 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_8h_BR3 < 6, "palegoldenrod",
-                                                                           "NA"))))))
-
-
 tiff(filename = "save_figures/circular_plot_nn2_4h_800dpi.tif", units="cm", res=800, width=18, height=16)
 set.seed(123)
 circos.clear()
 par(mar=c(0, 0, 0, 0))
-circos.par(start.degree = 90,
-           cell.padding = c(0, 0, 0, 0))
+circos.par(start.degree = 90, cell.padding = c(0, 0, 0, 0))
 
 # Initialize genome (bed file with genome sizes)
 genome <- data.frame(chr=c("NN2"), start = c(1), end = c(7000000))
@@ -337,6 +300,48 @@ circos.text(6200000,10, "A", cex=1.5, facing = "downward", font=2)
 text(0,0, "NN2-4h", cex=0.8)
 dev.off()
 
+############################################################################################################
+# circular plots, NN2, 8h
+antisense_NN2_norm_8h_circ <- cpm(featureCounts_PA_antisense_df_NN2, log=TRUE)
+antisense_NN2_norm_8h_circ <- data.frame(antisense_NN2_norm_8h_circ)[,c(4:6)]
+antisense_NN2_norm_8h_circ_gtf <- subset(import_gtf_NN2, transcript_id %in% rownames(antisense_NN2_norm_8h_circ))
+antisense_NN2_norm_8h_circ_gtf <- antisense_NN2_norm_8h_circ_gtf[order(antisense_NN2_norm_8h_circ_gtf$transcript_id),]
+antisense_NN2_norm_8h_circ <- antisense_NN2_norm_8h_circ[order(rownames(antisense_NN2_norm_8h_circ)),]
+
+antisense_NN2_norm_8h_circ$start <- antisense_NN2_norm_8h_circ_gtf$start
+antisense_NN2_norm_8h_circ$end <- antisense_NN2_norm_8h_circ_gtf$end
+antisense_NN2_norm_8h_circ$isolate <- "NN2"
+
+antisense_NN2_norm_8h_circ_BR1 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR1))
+color_NN2_BR1_8h <- with(antisense_NN2_norm_8h_circ_BR1,
+                                             ifelse(NN2_8h_BR1 >= 12, "palegreen4", 
+                                               ifelse(NN2_8h_BR1 < 12 & NN2_8h_BR1 >= 10, "palegreen3", 
+                                                      ifelse(NN2_8h_BR1 < 10 & NN2_8h_BR1 >= 9, "palegreen2",
+                                                             ifelse(NN2_8h_BR1 < 9 & NN2_8h_BR1 >= 6,
+                                                                    "lightgreen",
+                                                                    ifelse(NN2_8h_BR1 < 6, "palegoldenrod",
+                                                                           "NA"))))))
+
+antisense_NN2_norm_8h_circ_BR2 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR2))
+color_NN2_BR2_8h <- with(antisense_NN2_norm_8h_circ_BR2,
+                                             ifelse(NN2_8h_BR2 >= 12, "palegreen4", 
+                                               ifelse(NN2_8h_BR2 < 12 & NN2_8h_BR2 >= 10, "palegreen3", 
+                                                      ifelse(NN2_8h_BR2 < 10 & NN2_8h_BR2 >= 9, "palegreen2",
+                                                             ifelse(NN2_8h_BR2 < 9 & NN2_8h_BR2 >= 6,
+                                                                    "lightgreen",
+                                                                    ifelse(NN2_8h_BR2 < 6, "palegoldenrod",
+                                                                           "NA"))))))
+
+antisense_NN2_norm_8h_circ_BR3 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR3))
+color_NN2_BR3_8h <- with(antisense_NN2_norm_8h_circ_BR3,
+                                             ifelse(NN2_8h_BR3 >= 12, "palegreen4", 
+                                               ifelse(NN2_8h_BR3 < 12 & NN2_8h_BR3 >= 10, "palegreen3", 
+                                                      ifelse(NN2_8h_BR3 < 10 & NN2_8h_BR3 >= 9, "palegreen2",
+                                                             ifelse(NN2_8h_BR3 < 9 & NN2_8h_BR3 >= 6,
+                                                                    "lightgreen",
+                                                                    ifelse(NN2_8h_BR3 < 6, "palegoldenrod",
+                                                                           "NA"))))))
+
 tiff(filename = "save_figures/circular_plot_nn2_8h_800dpi.tif", units="cm", res=800, width=18, height=16)
 circos.clear()
 par(mar=c(0, 0, 0, 0))
@@ -392,6 +397,8 @@ circos.text(6200000,10, "B", cex=1.5, facing = "downward", font=2)
 text(0,0, "NN2-8h", cex=0.8)
 dev.off()
 
+
+############################################################################################################
 # circular plots, SG17M, 4h
 antisense_sg17m_norm_4h_circ <- cpm(featureCounts_PA_antisense_df_sg17m, log=TRUE)
 antisense_sg17m_norm_4h_circ <- data.frame(antisense_sg17m_norm_4h_circ)[,c(1:3)]
@@ -499,6 +506,7 @@ circos.text(6200000,10, "C", cex=1.5, facing = "downward", font=2)
 text(0,0, "SG17M-4h", cex=0.8)
 dev.off()
 
+############################################################################################################
 # circular plots, SG17M, 8h
 antisense_sg17m_norm_8h_circ <- cpm(featureCounts_PA_antisense_df_sg17m, log=TRUE)
 antisense_sg17m_norm_8h_circ <- data.frame(antisense_sg17m_norm_8h_circ)[,c(4:6)]
@@ -546,8 +554,7 @@ tiff(filename = "save_figures/circular_plot_sg17m_8h_800dpi.tif", units="cm", re
 set.seed(123)
 circos.clear()
 par(mar=c(0, 0, 0, 0))
-circos.par(start.degree = 90,
-           cell.padding = c(0, 0, 0, 0))
+circos.par(start.degree = 90, cell.padding = c(0, 0, 0, 0))
 
 # Initialize genome (bed file with genome sizes)
 genome <- data.frame(chr=c("SG17M"), start = c(1), end = c(7000000))
@@ -598,6 +605,7 @@ text(0,0, "SG17M-8h", cex=0.8)
 dev.off()
 
 
+############################################################################################################
 # extract regions with most alignments in each replicate
 n_features = 3
 feature_length = 10000
@@ -681,11 +689,8 @@ gtf_nn2_antisense_3per$gene_name3 <- NULL
 gtf_nn2_antisense_3per_unknown <- subset(gtf_nn2_antisense_3per, gene_name2 == "")
 gtf_nn2_antisense_3per_unknown <- select(gtf_nn2_antisense_3per_unknown, c(Isolate, start, end))
 
-#write.csv(gtf_nn2_antisense_3per_unknown, file = "nn2_antisense_threePercentMost_hypothetical.csv",
- #         row.names = FALSE)
-#write.csv(gtf_nn2_antisense_3per, file = "nn2_antisense_threePercentMost.csv",
-        #  row.names = FALSE)
 
+############################################################################################################
 # SG17M, antisense, 4h
 sg17m_antisense_n10high_list_4h <- list()
 sg17m_antisense_n10high_4h_1 <- featureCounts_PA_antisense_df_sg17m_norm_4h_4[order(
@@ -768,16 +773,14 @@ gtf_sg17m_antisense_3per$gene_name3 <- NULL
 gtf_sg17m_antisense_3per_unknown <- subset(gtf_sg17m_antisense_3per, gene_name2 == "")
 gtf_sg17m_antisense_3per_unknown <- select(gtf_sg17m_antisense_3per_unknown, c(Isolate, start, end))
 
-#write.csv(gtf_sg17m_antisense_3per_unknown, file = "sg17m_antisense_threePercentMost_hypothetical.csv",
-  #        row.names = FALSE)
-#write.csv(gtf_sg17m_antisense_3per, file = "sg17m_antisense_threePercentMost.csv",
-  #        row.names = FALSE)
 
+############################################################################################################
+# import bed files
 # NN2 ####
-NN2_4h_BR1_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR1_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR1_depth_fa <- data.frame(NN2_4h_BR1_depth_fa)
 NN2_4h_BR1_depth_fa$side <- "forward_antisense"
-NN2_4h_BR1_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR1_depth_ra <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR1_depth_ra <- data.frame(NN2_4h_BR1_depth_ra)
 NN2_4h_BR1_depth_ra$side <- "reverse_antisense"
 NN2_4h_BR1_depth <- data.frame(rbind(NN2_4h_BR1_depth_fa, NN2_4h_BR1_depth_ra))
@@ -785,10 +788,10 @@ NN2_4h_BR1_depth$X6 <- NULL
 NN2_4h_BR1_depth$replicate <- "BR1"
 
 
-NN2_4h_BR1_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR1_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR1_depth_fs <- data.frame(NN2_4h_BR1_depth_fs)
 NN2_4h_BR1_depth_fs$side <- "forward_sense"
-NN2_4h_BR1_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR1_depth_rs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR1_depth_rs <- data.frame(NN2_4h_BR1_depth_rs)
 NN2_4h_BR1_depth_rs$side <- "reverse_sense"
 NN2_4h_BR1_depth_sense <- data.frame(rbind(NN2_4h_BR1_depth_fs, NN2_4h_BR1_depth_rs))
@@ -798,10 +801,10 @@ NN2_4h_BR1_depth_sense$replicate <- "BR1"
 
 
 
-NN2_4h_BR2_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR2_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR2_depth_fa <- data.frame(NN2_4h_BR2_depth_fa)
 NN2_4h_BR2_depth_fa$side <- "forward_antisense"
-NN2_4h_BR2_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR2_depth_ra <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR2.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR2_depth_ra <- data.frame(NN2_4h_BR2_depth_ra)
 NN2_4h_BR2_depth_ra$side <- "reverse_antisense"
 NN2_4h_BR2_depth <- data.frame(rbind(NN2_4h_BR2_depth_fa, NN2_4h_BR2_depth_ra))
@@ -810,10 +813,10 @@ NN2_4h_BR2_depth$replicate <- "BR2"
 
 
 
-NN2_4h_BR2_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR2_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR2_depth_fs <- data.frame(NN2_4h_BR2_depth_fs)
 NN2_4h_BR2_depth_fs$side <- "forward_sense"
-NN2_4h_BR2_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR2_depth_rs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR2_depth_rs <- data.frame(NN2_4h_BR2_depth_rs)
 NN2_4h_BR2_depth_rs$side <- "reverse_sense"
 NN2_4h_BR2_depth_sense <- data.frame(rbind(NN2_4h_BR2_depth_fs, NN2_4h_BR2_depth_rs))
@@ -822,10 +825,10 @@ NN2_4h_BR2_depth_sense$replicate <- "BR2"
 
 
 
-NN2_4h_BR3_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR3_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR3_depth_fa <- data.frame(NN2_4h_BR3_depth_fa)
 NN2_4h_BR3_depth_fa$side <- "forward_antisense"
-NN2_4h_BR3_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR3_depth_ra <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR3.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR3_depth_ra <- data.frame(NN2_4h_BR3_depth_ra)
 NN2_4h_BR3_depth_ra$side <- "reverse_antisense"
 NN2_4h_BR3_depth <- data.frame(rbind(NN2_4h_BR3_depth_fa, NN2_4h_BR3_depth_ra))
@@ -833,10 +836,10 @@ NN2_4h_BR3_depth$X6 <- NULL
 NN2_4h_BR3_depth$replicate <- "BR3"
 
 
-NN2_4h_BR3_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR3_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR3_depth_fs <- data.frame(NN2_4h_BR3_depth_fs)
 NN2_4h_BR3_depth_fs$side <- "forward_sense"
-NN2_4h_BR3_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_4h_BR3.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_4h_BR3_depth_rs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR3_depth_rs <- data.frame(NN2_4h_BR3_depth_rs)
 NN2_4h_BR3_depth_rs$side <- "reverse_sense"
 NN2_4h_BR3_depth_sense <- data.frame(rbind(NN2_4h_BR3_depth_fs, NN2_4h_BR3_depth_rs))
@@ -849,10 +852,10 @@ colnames(NN2_4h_depth) <- c("isolate", "start", "end", "read_id", "qual", "side"
 NN2_4h_depth_sense <- data.frame(rbind(NN2_4h_BR1_depth_sense, NN2_4h_BR2_depth_sense, NN2_4h_BR3_depth_sense))
 colnames(NN2_4h_depth_sense) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
 
-NN2_8h_BR1_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR1_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR1_depth_fa <- data.frame(NN2_8h_BR1_depth_fa)
 NN2_8h_BR1_depth_fa$side <- "forward_antisense"
-NN2_8h_BR1_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR1_depth_ra <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR1_depth_ra <- data.frame(NN2_8h_BR1_depth_ra)
 NN2_8h_BR1_depth_ra$side <- "reverse_antisense"
 NN2_8h_BR1_depth <- data.frame(rbind(NN2_8h_BR1_depth_fa, NN2_8h_BR1_depth_ra))
@@ -861,10 +864,10 @@ NN2_8h_BR1_depth$replicate <- "BR1"
 
 
 
-NN2_8h_BR1_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR1_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR1_depth_fs <- data.frame(NN2_8h_BR1_depth_fs)
 NN2_8h_BR1_depth_fs$side <- "forward_sense"
-NN2_8h_BR1_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR1_depth_rs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR1_depth_rs <- data.frame(NN2_8h_BR1_depth_rs)
 NN2_8h_BR1_depth_rs$side <- "reverse_sense"
 NN2_8h_BR1_depth_sense <- data.frame(rbind(NN2_8h_BR1_depth_fs, NN2_8h_BR1_depth_rs))
@@ -872,10 +875,10 @@ NN2_8h_BR1_depth_sense$X6 <- NULL
 NN2_8h_BR1_depth_sense$replicate <- "BR1"
 
 
-NN2_8h_BR2_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR2_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR2_depth_fa <- data.frame(NN2_8h_BR2_depth_fa)
 NN2_8h_BR2_depth_fa$side <- "forward_antisense"
-NN2_8h_BR2_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR2_depth_ra <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR2.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR2_depth_ra <- data.frame(NN2_8h_BR2_depth_ra)
 NN2_8h_BR2_depth_ra$side <- "reverse_antisense"
 NN2_8h_BR2_depth <- data.frame(rbind(NN2_8h_BR2_depth_fa, NN2_8h_BR2_depth_ra))
@@ -883,10 +886,10 @@ NN2_8h_BR2_depth$X6 <- NULL
 NN2_8h_BR2_depth$replicate <- "BR2"
 
 
-NN2_8h_BR2_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR2_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR2_depth_fs <- data.frame(NN2_8h_BR2_depth_fs)
 NN2_8h_BR2_depth_fs$side <- "forward_sense"
-NN2_8h_BR2_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR2.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR2_depth_rs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR2_depth_rs <- data.frame(NN2_8h_BR2_depth_rs)
 NN2_8h_BR2_depth_rs$side <- "reverse_sense"
 NN2_8h_BR2_depth_sense <- data.frame(rbind(NN2_8h_BR2_depth_fs, NN2_8h_BR2_depth_rs))
@@ -894,20 +897,20 @@ NN2_8h_BR2_depth_sense$X6 <- NULL
 NN2_8h_BR2_depth_sense$replicate <- "BR2"
 
 
-NN2_8h_BR3_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR3_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR3_depth_fa <- data.frame(NN2_8h_BR3_depth_fa)
 NN2_8h_BR3_depth_fa$side <- "forward_antisense"
-NN2_8h_BR3_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR3_depth_ra <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR3.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR3_depth_ra <- data.frame(NN2_8h_BR3_depth_ra)
 NN2_8h_BR3_depth_ra$side <- "reverse_antisense"
 NN2_8h_BR3_depth <- data.frame(rbind(NN2_8h_BR3_depth_fa, NN2_8h_BR3_depth_ra))
 NN2_8h_BR3_depth$X6 <- NULL
 NN2_8h_BR3_depth$replicate <- "BR3"
 
-NN2_8h_BR3_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR3_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR3_depth_fs <- data.frame(NN2_8h_BR3_depth_fs)
 NN2_8h_BR3_depth_fs$side <- "forward_sense"
-NN2_8h_BR3_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/NN2_run/c_raw_bam_sam/antisense_transcription/test/NN2_CS_8h_BR3.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+NN2_8h_BR3_depth_rs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR3_depth_rs <- data.frame(NN2_8h_BR3_depth_rs)
 NN2_8h_BR3_depth_rs$side <- "reverse_sense"
 NN2_8h_BR3_depth_sense <- data.frame(rbind(NN2_8h_BR3_depth_fs, NN2_8h_BR3_depth_rs))
@@ -1161,23 +1164,17 @@ nn2_antisense_hsp_8h <-
           labels=c("D", "E", "F"))
 
 antisense_hotspots_nn2 <- ggarrange(nn2_antisense_hsp_4h, nn2_antisense_hsp_8h, nrow=2)
-
-ggsave(antisense_hotspots_nn2, filename="save_figures/Figure_06.tif",
-      dpi=300, device="tiff", units="cm", width=28,height=23)
-
+# save figure with hotspot alignment
+ggsave(antisense_hotspots_nn2, filename="save_figures/Figure_06.tif", dpi=300, device="tiff", units="cm", width=28,height=23)
 
 
-
-
-
-
-
-
+############################################################################################################
+# import bed files
 # SG17M ####
-SG17M_4h_BR1_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR1_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR1_depth_fa <- data.frame(SG17M_4h_BR1_depth_fa)
 SG17M_4h_BR1_depth_fa$side <- "forward_antisense"
-SG17M_4h_BR1_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR1_depth_ra <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR1_depth_ra <- data.frame(SG17M_4h_BR1_depth_ra)
 SG17M_4h_BR1_depth_ra$side <- "reverse_antisense"
 SG17M_4h_BR1_depth <- data.frame(rbind(SG17M_4h_BR1_depth_fa, SG17M_4h_BR1_depth_ra))
@@ -1185,10 +1182,10 @@ SG17M_4h_BR1_depth$X6 <- NULL
 SG17M_4h_BR1_depth$replicate <- "BR1"
 
 
-SG17M_4h_BR1_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR1_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR1_depth_fs <- data.frame(SG17M_4h_BR1_depth_fs)
 SG17M_4h_BR1_depth_fs$side <- "forward_sense"
-SG17M_4h_BR1_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR1_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR1_depth_rs <- data.frame(SG17M_4h_BR1_depth_rs)
 SG17M_4h_BR1_depth_rs$side <- "reverse_sense"
 SG17M_4h_BR1_depth_sense <- data.frame(rbind(SG17M_4h_BR1_depth_fs, SG17M_4h_BR1_depth_rs))
@@ -1196,10 +1193,10 @@ SG17M_4h_BR1_depth_sense$X6 <- NULL
 SG17M_4h_BR1_depth_sense$replicate <- "BR1"
 
 
-SG17M_4h_BR2_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR2_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR2_depth_fa <- data.frame(SG17M_4h_BR2_depth_fa)
 SG17M_4h_BR2_depth_fa$side <- "forward_antisense"
-SG17M_4h_BR2_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR2_depth_ra <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR2.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR2_depth_ra <- data.frame(SG17M_4h_BR2_depth_ra)
 SG17M_4h_BR2_depth_ra$side <- "reverse_antisense"
 SG17M_4h_BR2_depth <- data.frame(rbind(SG17M_4h_BR2_depth_fa, SG17M_4h_BR2_depth_ra))
@@ -1207,10 +1204,10 @@ SG17M_4h_BR2_depth$X6 <- NULL
 SG17M_4h_BR2_depth$replicate <- "BR2"
 
 
-SG17M_4h_BR2_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR2_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR2_depth_fs <- data.frame(SG17M_4h_BR2_depth_fs)
 SG17M_4h_BR2_depth_fs$side <- "forward_sense"
-SG17M_4h_BR2_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR2.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR2_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR2_depth_rs <- data.frame(SG17M_4h_BR2_depth_rs)
 SG17M_4h_BR2_depth_rs$side <- "reverse_sense"
 SG17M_4h_BR2_depth_sense <- data.frame(rbind(SG17M_4h_BR2_depth_fs, SG17M_4h_BR2_depth_rs))
@@ -1218,10 +1215,10 @@ SG17M_4h_BR2_depth_sense$X6 <- NULL
 SG17M_4h_BR2_depth_sense$replicate <- "BR2"
 
 
-SG17M_4h_BR3_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR3_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR3_depth_fa <- data.frame(SG17M_4h_BR3_depth_fa)
 SG17M_4h_BR3_depth_fa$side <- "forward_antisense"
-SG17M_4h_BR3_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR3_depth_ra <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR3_depth_ra <- data.frame(SG17M_4h_BR3_depth_ra)
 SG17M_4h_BR3_depth_ra$side <- "reverse_antisense"
 SG17M_4h_BR3_depth <- data.frame(rbind(SG17M_4h_BR3_depth_fa, SG17M_4h_BR3_depth_ra))
@@ -1229,11 +1226,11 @@ SG17M_4h_BR3_depth$X6 <- NULL
 SG17M_4h_BR3_depth$replicate <- "BR3"
 
 
-SG17M_4h_BR3_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR3.sorted.forward_sense.bed",  "\t", 
+SG17M_4h_BR3_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.forward_sense.bed",  "\t", 
                                     escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR3_depth_fs <- data.frame(SG17M_4h_BR3_depth_fs)
 SG17M_4h_BR3_depth_fs$side <- "forward_sense"
-SG17M_4h_BR3_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_4h_BR3.sorted.reverse_antisense.bed",  "\t", 
+SG17M_4h_BR3_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.reverse_sense.bed",  "\t", 
                                     escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR3_depth_rs <- data.frame(SG17M_4h_BR3_depth_rs)
 SG17M_4h_BR3_depth_rs$side <- "reverse_sense"
@@ -1247,10 +1244,10 @@ colnames(SG17M_4h_depth) <- c("isolate", "start", "end", "read_id", "qual", "sid
 SG17M_4h_depth_sense <- data.frame(rbind(SG17M_4h_BR1_depth_sense, SG17M_4h_BR2_depth_sense, SG17M_4h_BR3_depth_sense))
 colnames(SG17M_4h_depth_sense) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
 
-SG17M_8h_BR1_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR1_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR1.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR1_depth_fa <- data.frame(SG17M_8h_BR1_depth_fa)
 SG17M_8h_BR1_depth_fa$side <- "forward_antisense"
-SG17M_8h_BR1_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR1_depth_ra <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR1_depth_ra <- data.frame(SG17M_8h_BR1_depth_ra)
 SG17M_8h_BR1_depth_ra$side <- "reverse_antisense"
 SG17M_8h_BR1_depth <- data.frame(rbind(SG17M_8h_BR1_depth_fa, SG17M_8h_BR1_depth_ra))
@@ -1258,10 +1255,10 @@ SG17M_8h_BR1_depth$X6 <- NULL
 SG17M_8h_BR1_depth$replicate <- "BR1"
 
 
-SG17M_8h_BR1_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR1_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR1_depth_fs <- data.frame(SG17M_8h_BR1_depth_fs)
 SG17M_8h_BR1_depth_fs$side <- "forward_sense"
-SG17M_8h_BR1_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR1.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR1_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR1.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR1_depth_rs <- data.frame(SG17M_8h_BR1_depth_rs)
 SG17M_8h_BR1_depth_rs$side <- "reverse_sense"
 SG17M_8h_BR1_depth_sense <- data.frame(rbind(SG17M_8h_BR1_depth_fs, SG17M_8h_BR1_depth_rs))
@@ -1269,10 +1266,10 @@ SG17M_8h_BR1_depth_sense$X6 <- NULL
 SG17M_8h_BR1_depth_sense$replicate <- "BR1"
 
 
-SG17M_8h_BR2_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR2_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR2_depth_fa <- data.frame(SG17M_8h_BR2_depth_fa)
 SG17M_8h_BR2_depth_fa$side <- "forward_antisense"
-SG17M_8h_BR2_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR2_depth_ra <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR2.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR2_depth_ra <- data.frame(SG17M_8h_BR2_depth_ra)
 SG17M_8h_BR2_depth_ra$side <- "reverse_antisense"
 SG17M_8h_BR2_depth <- data.frame(rbind(SG17M_8h_BR2_depth_fa, SG17M_8h_BR2_depth_ra))
@@ -1280,10 +1277,10 @@ SG17M_8h_BR2_depth$X6 <- NULL
 SG17M_8h_BR2_depth$replicate <- "BR2"
 
 
-SG17M_8h_BR2_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR2_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR2_depth_fs <- data.frame(SG17M_8h_BR2_depth_fs)
 SG17M_8h_BR2_depth_fs$side <- "forward_sense"
-SG17M_8h_BR2_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR2.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR2_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR2.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR2_depth_rs <- data.frame(SG17M_8h_BR2_depth_rs)
 SG17M_8h_BR2_depth_rs$side <- "reverse_sense"
 SG17M_8h_BR2_depth_sense <- data.frame(rbind(SG17M_8h_BR2_depth_fs, SG17M_8h_BR2_depth_rs))
@@ -1291,10 +1288,10 @@ SG17M_8h_BR2_depth_sense$X6 <- NULL
 SG17M_8h_BR2_depth_sense$replicate <- "BR2"
 
 
-SG17M_8h_BR3_depth_fa <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR3_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR3_depth_fa <- data.frame(SG17M_8h_BR3_depth_fa)
 SG17M_8h_BR3_depth_fa$side <- "forward_antisense"
-SG17M_8h_BR3_depth_ra <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR3_depth_ra <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR3.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR3_depth_ra <- data.frame(SG17M_8h_BR3_depth_ra)
 SG17M_8h_BR3_depth_ra$side <- "reverse_antisense"
 SG17M_8h_BR3_depth <- data.frame(rbind(SG17M_8h_BR3_depth_fa, SG17M_8h_BR3_depth_ra))
@@ -1302,10 +1299,10 @@ SG17M_8h_BR3_depth$X6 <- NULL
 SG17M_8h_BR3_depth$replicate <- "BR3"
 
 
-SG17M_8h_BR3_depth_fs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR3_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR3_depth_fs <- data.frame(SG17M_8h_BR3_depth_fs)
 SG17M_8h_BR3_depth_fs$side <- "forward_sense"
-SG17M_8h_BR3_depth_rs <- read_delim("/ngsssd1/tuem_mp/projects_MariePust_2018/rna_ont_nn2_sg17m_2021/MinionExperiments202009/b_minimap2/repeat_mapping/SG17M_run/c_raw_bam_sam/antisense_transcription/test/SG17M_CS_8h_BR3.sorted.reverse_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_8h_BR3_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR3_depth_rs <- data.frame(SG17M_8h_BR3_depth_rs)
 SG17M_8h_BR3_depth_rs$side <- "reverse_sense"
 SG17M_8h_BR3_depth_sense <- data.frame(rbind(SG17M_8h_BR3_depth_fs, SG17M_8h_BR3_depth_rs))
@@ -1317,12 +1314,6 @@ colnames(SG17M_8h_depth) <- c("isolate", "start", "end", "read_id", "qual", "sid
 
 SG17M_8h_depth_sense <- data.frame(rbind(SG17M_8h_BR1_depth_sense, SG17M_8h_BR2_depth_sense, SG17M_8h_BR3_depth_sense))
 colnames(SG17M_8h_depth_sense) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
-
-#SG17M_4h_depth$length <- SG17M_4h_depth$end - SG17M_4h_depth$start
-#SG17M_8h_depth$length <- SG17M_8h_depth$end - SG17M_8h_depth$start
-
-#write.csv(SG17M_4h_depth, file="SG17M_4h_length.csv", row.names = FALSE)
-#write.csv(SG17M_8h_depth, file="SG17M_8h_length.csv", row.names = FALSE)
 
 
 # Antisense hotspot 1, 4h
@@ -1587,12 +1578,9 @@ SG17M_hsp4_plot_8h <- ggplot() +
   scale_x_continuous(label=scales::comma)
 
 
-sg17m_4h_antisense_hotspots <- ggarrange(SG17M_hsp1_plot, SG17M_hsp2_plot, SG17M_hsp4_plot, nrow= 1,
-          labels=c("A", "B", "C"))
-
-sg17m_8h_antisense_hotspots <- ggarrange(SG17M_hsp1_plot_8h, SG17M_hsp2_plot_8h, SG17M_hsp4_plot_8h, nrow= 1,
-          labels=c("D", "E", "F"))
-
+sg17m_4h_antisense_hotspots <- ggarrange(SG17M_hsp1_plot, SG17M_hsp2_plot, SG17M_hsp4_plot, nrow= 1, labels=c("A", "B", "C"))
+sg17m_8h_antisense_hotspots <- ggarrange(SG17M_hsp1_plot_8h, SG17M_hsp2_plot_8h, SG17M_hsp4_plot_8h, nrow= 1, labels=c("D", "E", "F"))
 sg17m_antisense_hsp <- ggarrange(sg17m_4h_antisense_hotspots, sg17m_8h_antisense_hotspots, nrow=2)
 
+# save final figure
 ggsave(sg17m_antisense_hsp, filename="save_figures/Figure_07.tif", dpi=300, device="tiff", units="cm", width=28,height=23)
