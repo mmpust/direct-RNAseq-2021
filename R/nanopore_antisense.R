@@ -2,11 +2,6 @@
 # author: "Marie-Madlen Pust"
 # date: "22 10 2021"
 
-# Clean environment
-rm(list = ls())
-
-
-
 ############################################################################################################
 # clean global environment
 rm(list=ls())
@@ -28,8 +23,7 @@ ipak <- function(pkg){
   sapply(pkg, require, character.only = TRUE)}
 
 # store required packages
-packages <- c('rlist','ggplot2','readr','readxl','Rsubread','edgeR','stringr','tidyr','ggpubr','circlize','dplyr','Rsamtools', 'GenomicRanges',
-              'GenomicAlignments','vegan','rcompanion')
+packages <- c('rlist','ggplot2','readr','readxl','Rsubread','edgeR','stringr','tidyr','ggpubr','circlize','dplyr','Rsamtools', 'GenomicRanges', 'GenomicAlignments','vegan','rcompanion')
 
 # store paths to files
 UserDefinedAnnotationRef <- "NN2_ENO_SG17M_curated.gtf"
@@ -207,36 +201,27 @@ antisense_NN2_norm_4h_circ$end <- antisense_NN2_norm_4h_circ_gtf$end
 antisense_NN2_norm_4h_circ$isolate <- "NN2"
 
 antisense_NN2_norm_4h_circ_BR1 <- select(antisense_NN2_norm_4h_circ, c(isolate,start, end, NN2_4h_BR1))
-color_NN2_BR1_4h <- with(antisense_NN2_norm_4h_circ_BR1,
-                                             ifelse(NN2_4h_BR1 >= 12, "palegreen4", 
-                                               ifelse(NN2_4h_BR1 < 12 & NN2_4h_BR1 >= 10, "palegreen3", 
-                                                      ifelse(NN2_4h_BR1 < 10 & NN2_4h_BR1 >= 9, "palegreen2",
-                                                             ifelse(NN2_4h_BR1 < 9 & NN2_4h_BR1 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_4h_BR1 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_NN2_BR1_4h <- with(antisense_NN2_norm_4h_circ_BR1, ifelse(NN2_4h_BR1 >= 12, "palegreen4", 
+                                                                ifelse(NN2_4h_BR1 < 12 & NN2_4h_BR1 >= 10, "palegreen3", 
+                                                                       ifelse(NN2_4h_BR1 < 10 & NN2_4h_BR1 >= 9, "palegreen2",
+                                                                              ifelse(NN2_4h_BR1 < 9 & NN2_4h_BR1 >= 6, "lightgreen",
+                                                                                     ifelse(NN2_4h_BR1 < 6, "palegoldenrod", "NA"))))))
 
 antisense_NN2_norm_4h_circ_BR2 <- select(antisense_NN2_norm_4h_circ, c(isolate,start, end, NN2_4h_BR2))
-color_NN2_BR2_4h <- with(antisense_NN2_norm_4h_circ_BR2,
-                                             ifelse(NN2_4h_BR2 >= 12, "palegreen4", 
-                                               ifelse(NN2_4h_BR2 < 12 & NN2_4h_BR2 >= 10, "palegreen3", 
-                                                      ifelse(NN2_4h_BR2 < 10 & NN2_4h_BR2 >= 9, "palegreen2",
-                                                             ifelse(NN2_4h_BR2 < 9 & NN2_4h_BR2 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_4h_BR2 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_NN2_BR2_4h <- with(antisense_NN2_norm_4h_circ_BR2, ifelse(NN2_4h_BR2 >= 12, "palegreen4", 
+                                                                ifelse(NN2_4h_BR2 < 12 & NN2_4h_BR2 >= 10, "palegreen3", 
+                                                                       ifelse(NN2_4h_BR2 < 10 & NN2_4h_BR2 >= 9, "palegreen2",
+                                                                              ifelse(NN2_4h_BR2 < 9 & NN2_4h_BR2 >= 6, "lightgreen",
+                                                                                     ifelse(NN2_4h_BR2 < 6, "palegoldenrod", "NA"))))))
 
 antisense_NN2_norm_4h_circ_BR3 <- select(antisense_NN2_norm_4h_circ, c(isolate, start, end, NN2_4h_BR3))
-color_NN2_BR3_4h <- with(antisense_NN2_norm_4h_circ_BR3,
-                                             ifelse(NN2_4h_BR3 >= 12, "palegreen4", 
-                                               ifelse(NN2_4h_BR3 < 12 & NN2_4h_BR3 >= 10, "palegreen3", 
-                                                      ifelse(NN2_4h_BR3 < 10 & NN2_4h_BR3 >= 9, "palegreen2",
-                                                             ifelse(NN2_4h_BR3 < 9 & NN2_4h_BR3 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_4h_BR3 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_NN2_BR3_4h <- with(antisense_NN2_norm_4h_circ_BR3, ifelse(NN2_4h_BR3 >= 12, "palegreen4", 
+                                                                ifelse(NN2_4h_BR3 < 12 & NN2_4h_BR3 >= 10, "palegreen3", 
+                                                                       ifelse(NN2_4h_BR3 < 10 & NN2_4h_BR3 >= 9, "palegreen2",
+                                                                              ifelse(NN2_4h_BR3 < 9 & NN2_4h_BR3 >= 6, "lightgreen",
+                                                                                     ifelse(NN2_4h_BR3 < 6, "palegoldenrod", "NA"))))))
 
-tiff(filename = "save_figures/circular_plot_nn2_4h_800dpi.tif", units="cm", res=800, width=18, height=16)
+tiff(filename = "save_figures/circular_plot_nn2_4h.tif", units="cm", res=800, width=18, height=16)
 set.seed(123)
 circos.clear()
 par(mar=c(0, 0, 0, 0))
@@ -244,8 +229,7 @@ circos.par(start.degree = 90, cell.padding = c(0, 0, 0, 0))
 
 # Initialize genome (bed file with genome sizes)
 genome <- data.frame(chr=c("NN2"), start = c(1), end = c(7000000))
-circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000,
-                         axis.labels.cex = 0.7, labels.cex = 0.7)
+circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
 feature <- data.frame(chr = c(nn2_accessory$Isolate), 
@@ -313,45 +297,34 @@ antisense_NN2_norm_8h_circ$end <- antisense_NN2_norm_8h_circ_gtf$end
 antisense_NN2_norm_8h_circ$isolate <- "NN2"
 
 antisense_NN2_norm_8h_circ_BR1 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR1))
-color_NN2_BR1_8h <- with(antisense_NN2_norm_8h_circ_BR1,
-                                             ifelse(NN2_8h_BR1 >= 12, "palegreen4", 
-                                               ifelse(NN2_8h_BR1 < 12 & NN2_8h_BR1 >= 10, "palegreen3", 
-                                                      ifelse(NN2_8h_BR1 < 10 & NN2_8h_BR1 >= 9, "palegreen2",
-                                                             ifelse(NN2_8h_BR1 < 9 & NN2_8h_BR1 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_8h_BR1 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_NN2_BR1_8h <- with(antisense_NN2_norm_8h_circ_BR1, ifelse(NN2_8h_BR1 >= 12, "palegreen4", 
+                                                                ifelse(NN2_8h_BR1 < 12 & NN2_8h_BR1 >= 10, "palegreen3", 
+                                                                       ifelse(NN2_8h_BR1 < 10 & NN2_8h_BR1 >= 9, "palegreen2",
+                                                                              ifelse(NN2_8h_BR1 < 9 & NN2_8h_BR1 >= 6, "lightgreen",
+                                                                                     ifelse(NN2_8h_BR1 < 6, "palegoldenrod", "NA"))))))
 
 antisense_NN2_norm_8h_circ_BR2 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR2))
-color_NN2_BR2_8h <- with(antisense_NN2_norm_8h_circ_BR2,
-                                             ifelse(NN2_8h_BR2 >= 12, "palegreen4", 
-                                               ifelse(NN2_8h_BR2 < 12 & NN2_8h_BR2 >= 10, "palegreen3", 
-                                                      ifelse(NN2_8h_BR2 < 10 & NN2_8h_BR2 >= 9, "palegreen2",
-                                                             ifelse(NN2_8h_BR2 < 9 & NN2_8h_BR2 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_8h_BR2 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_NN2_BR2_8h <- with(antisense_NN2_norm_8h_circ_BR2, ifelse(NN2_8h_BR2 >= 12, "palegreen4", 
+                                                                ifelse(NN2_8h_BR2 < 12 & NN2_8h_BR2 >= 10, "palegreen3", 
+                                                                       ifelse(NN2_8h_BR2 < 10 & NN2_8h_BR2 >= 9, "palegreen2",
+                                                                              ifelse(NN2_8h_BR2 < 9 & NN2_8h_BR2 >= 6, "lightgreen",
+                                                                                     ifelse(NN2_8h_BR2 < 6, "palegoldenrod", "NA"))))))
 
 antisense_NN2_norm_8h_circ_BR3 <- select(antisense_NN2_norm_8h_circ, c(isolate,start, end, NN2_8h_BR3))
-color_NN2_BR3_8h <- with(antisense_NN2_norm_8h_circ_BR3,
-                                             ifelse(NN2_8h_BR3 >= 12, "palegreen4", 
-                                               ifelse(NN2_8h_BR3 < 12 & NN2_8h_BR3 >= 10, "palegreen3", 
-                                                      ifelse(NN2_8h_BR3 < 10 & NN2_8h_BR3 >= 9, "palegreen2",
-                                                             ifelse(NN2_8h_BR3 < 9 & NN2_8h_BR3 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(NN2_8h_BR3 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_NN2_BR3_8h <- with(antisense_NN2_norm_8h_circ_BR3, ifelse(NN2_8h_BR3 >= 12, "palegreen4",  
+                                                                ifelse(NN2_8h_BR3 < 12 & NN2_8h_BR3 >= 10, "palegreen3", 
+                                                                       ifelse(NN2_8h_BR3 < 10 & NN2_8h_BR3 >= 9, "palegreen2",
+                                                                              ifelse(NN2_8h_BR3 < 9 & NN2_8h_BR3 >= 6, "lightgreen",
+                                                                                     ifelse(NN2_8h_BR3 < 6, "palegoldenrod", "NA"))))))
 
-tiff(filename = "save_figures/circular_plot_nn2_8h_800dpi.tif", units="cm", res=800, width=18, height=16)
+tiff(filename = "save_figures/circular_plot_nn2_8h.tif", units="cm", res=800, width=18, height=16)
 circos.clear()
 par(mar=c(0, 0, 0, 0))
-circos.par(start.degree = 90,
-           cell.padding = c(0, 0, 0, 0))
+circos.par(start.degree = 90, cell.padding = c(0, 0, 0, 0))
 
 # Initialize genome (bed file with genome sizes)
 genome <- data.frame(chr=c("NN2"), start = c(1), end = c(7000000))
-circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000,
-                         axis.labels.cex = 0.7, labels.cex = 0.7)
+circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
 circos.genomicTrack(feature, ylim=c(0,1), track.height = 0.1, 
@@ -359,7 +332,6 @@ circos.genomicTrack(feature, ylim=c(0,1), track.height = 0.1,
                       circos.genomicRect(region, value, col="gold", border="gold")}, bg.col = "dodgerblue4")
 
 circos.genomicDensity(feature_tRNA, count_by = "number", col="black", area=TRUE)
-
 
 antisense_cov4 <- data.frame(chr = c(antisense_NN2_norm_8h_circ_BR1$isolate),
                             start = c(antisense_NN2_norm_8h_circ_BR1$start),
@@ -410,49 +382,35 @@ antisense_sg17m_norm_4h_circ$start <- antisense_sg17m_norm_4h_circ_gtf$start
 antisense_sg17m_norm_4h_circ$end <- antisense_sg17m_norm_4h_circ_gtf$end
 antisense_sg17m_norm_4h_circ$isolate <- "SG17M"
 antisense_sg17m_norm_4h_circ_BR1 <- select(antisense_sg17m_norm_4h_circ, c(isolate,start, end, sg17m_4h_BR1))
-color_sg17m_BR1_4h <- with(antisense_sg17m_norm_4h_circ_BR1,
-                                             ifelse(sg17m_4h_BR1 >= 12, "palegreen4", 
-                                               ifelse(sg17m_4h_BR1 < 12 & sg17m_4h_BR1 >= 10, "palegreen3", 
-                                                      ifelse(sg17m_4h_BR1 < 10 & sg17m_4h_BR1 >= 9,
-                                                             "palegreen2",
-                                                             ifelse(sg17m_4h_BR1 < 9 & sg17m_4h_BR1 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(sg17m_4h_BR1 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_sg17m_BR1_4h <- with(antisense_sg17m_norm_4h_circ_BR1, ifelse(sg17m_4h_BR1 >= 12, "palegreen4", 
+                                                                    ifelse(sg17m_4h_BR1 < 12 & sg17m_4h_BR1 >= 10, "palegreen3", 
+                                                                           ifelse(sg17m_4h_BR1 < 10 & sg17m_4h_BR1 >= 9, "palegreen2",
+                                                                                  ifelse(sg17m_4h_BR1 < 9 & sg17m_4h_BR1 >= 6, "lightgreen",
+                                                                                         ifelse(sg17m_4h_BR1 < 6, "palegoldenrod", "NA"))))))
 
 antisense_sg17m_norm_4h_circ_BR2 <- select(antisense_sg17m_norm_4h_circ, c(isolate,start, end, sg17m_4h_BR2))
-color_sg17m_BR2_4h <- with(antisense_sg17m_norm_4h_circ_BR2,
-                                             ifelse(sg17m_4h_BR2 >= 12, "palegreen4", 
-                                               ifelse(sg17m_4h_BR2 < 12 & sg17m_4h_BR2 >= 10, "palegreen3", 
-                                                      ifelse(sg17m_4h_BR2 < 10 & sg17m_4h_BR2 >= 9,
-                                                             "palegreen2",
-                                                             ifelse(sg17m_4h_BR2 < 9 & sg17m_4h_BR2 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(sg17m_4h_BR2 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_sg17m_BR2_4h <- with(antisense_sg17m_norm_4h_circ_BR2, ifelse(sg17m_4h_BR2 >= 12, "palegreen4", 
+                                                                    ifelse(sg17m_4h_BR2 < 12 & sg17m_4h_BR2 >= 10, "palegreen3", 
+                                                                           ifelse(sg17m_4h_BR2 < 10 & sg17m_4h_BR2 >= 9, "palegreen2",
+                                                                                  ifelse(sg17m_4h_BR2 < 9 & sg17m_4h_BR2 >= 6, "lightgreen",
+                                                                                         ifelse(sg17m_4h_BR2 < 6, "palegoldenrod", "NA"))))))
 
 antisense_sg17m_norm_4h_circ_BR3 <- select(antisense_sg17m_norm_4h_circ, c(isolate,start, end, sg17m_4h_BR3))
-color_sg17m_BR3_4h <- with(antisense_sg17m_norm_4h_circ_BR3,
-                                             ifelse(sg17m_4h_BR3 >= 12, "palegreen4", 
-                                               ifelse(sg17m_4h_BR3 < 12 & sg17m_4h_BR3 >= 10, "palegreen3", 
-                                                      ifelse(sg17m_4h_BR3 < 10 & sg17m_4h_BR3 >= 9,
-                                                             "palegreen2",
-                                                             ifelse(sg17m_4h_BR3 < 9 & sg17m_4h_BR3 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(sg17m_4h_BR3 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_sg17m_BR3_4h <- with(antisense_sg17m_norm_4h_circ_BR3, ifelse(sg17m_4h_BR3 >= 12, "palegreen4", 
+                                                                    ifelse(sg17m_4h_BR3 < 12 & sg17m_4h_BR3 >= 10, "palegreen3", 
+                                                                           ifelse(sg17m_4h_BR3 < 10 & sg17m_4h_BR3 >= 9, "palegreen2",
+                                                                                  ifelse(sg17m_4h_BR3 < 9 & sg17m_4h_BR3 >= 6, "lightgreen",
+                                                                                         ifelse(sg17m_4h_BR3 < 6, "palegoldenrod", "NA"))))))
 
 tiff(filename = "save_figures/circular_plot_sg17m_4h_800dpi.tif", units="cm", res=800, width=18, height=16)
 set.seed(123)
 circos.clear()
 par(mar=c(0, 0, 0, 0))
-circos.par(start.degree = 90,
-           cell.padding = c(0, 0, 0, 0))
+circos.par(start.degree = 90, cell.padding = c(0, 0, 0, 0))
 
 # Initialize genome (bed file with genome sizes)
 genome <- data.frame(chr=c("SG17M"), start = c(1), end = c(7000000))
-circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000,
-                         axis.labels.cex = 0.7, labels.cex = 0.7)
+circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
 feature_sg17m <- data.frame(chr = c(sg17m_accessory$Isolate), 
@@ -518,37 +476,25 @@ antisense_sg17m_norm_8h_circ$start <- antisense_sg17m_norm_8h_circ_gtf$start
 antisense_sg17m_norm_8h_circ$end <- antisense_sg17m_norm_8h_circ_gtf$end
 antisense_sg17m_norm_8h_circ$isolate <- "SG17M"
 antisense_sg17m_norm_8h_circ_BR1 <- select(antisense_sg17m_norm_8h_circ, c(isolate,start, end, sg17m_8h_BR1))
-color_sg17m_BR1_8h <- with(antisense_sg17m_norm_8h_circ_BR1,
-                                             ifelse(sg17m_8h_BR1 >= 12, "palegreen4", 
-                                               ifelse(sg17m_8h_BR1 < 12 & sg17m_8h_BR1 >= 10, "palegreen3", 
-                                                      ifelse(sg17m_8h_BR1 < 10 & sg17m_8h_BR1 >= 9,
-                                                             "palegreen2",
-                                                             ifelse(sg17m_8h_BR1 < 9 & sg17m_8h_BR1 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(sg17m_8h_BR1 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_sg17m_BR1_8h <- with(antisense_sg17m_norm_8h_circ_BR1, ifelse(sg17m_8h_BR1 >= 12, "palegreen4", 
+                                                                    ifelse(sg17m_8h_BR1 < 12 & sg17m_8h_BR1 >= 10, "palegreen3", 
+                                                                           ifelse(sg17m_8h_BR1 < 10 & sg17m_8h_BR1 >= 9, "palegreen2",
+                                                                                  ifelse(sg17m_8h_BR1 < 9 & sg17m_8h_BR1 >= 6, "lightgreen",
+                                                                                         ifelse(sg17m_8h_BR1 < 6, "palegoldenrod", "NA"))))))
 
 antisense_sg17m_norm_8h_circ_BR2 <- select(antisense_sg17m_norm_8h_circ, c(isolate,start, end, sg17m_8h_BR2))
-color_sg17m_BR2_8h <- with(antisense_sg17m_norm_8h_circ_BR2,
-                                             ifelse(sg17m_8h_BR2 >= 12, "palegreen4", 
-                                               ifelse(sg17m_8h_BR2 < 12 & sg17m_8h_BR2 >= 10, "palegreen3", 
-                                                      ifelse(sg17m_8h_BR2 < 10 & sg17m_8h_BR2 >= 9,
-                                                             "palegreen2",
-                                                             ifelse(sg17m_8h_BR2 < 9 & sg17m_8h_BR2 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(sg17m_8h_BR2 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_sg17m_BR2_8h <- with(antisense_sg17m_norm_8h_circ_BR2, ifelse(sg17m_8h_BR2 >= 12, "palegreen4", 
+                                                                    ifelse(sg17m_8h_BR2 < 12 & sg17m_8h_BR2 >= 10, "palegreen3", 
+                                                                           ifelse(sg17m_8h_BR2 < 10 & sg17m_8h_BR2 >= 9, "palegreen2",
+                                                                                  ifelse(sg17m_8h_BR2 < 9 & sg17m_8h_BR2 >= 6, "lightgreen",
+                                                                                         ifelse(sg17m_8h_BR2 < 6, "palegoldenrod", "NA"))))))
 
 antisense_sg17m_norm_8h_circ_BR3 <- select(antisense_sg17m_norm_8h_circ, c(isolate,start, end, sg17m_8h_BR3))
-color_sg17m_BR3_8h <- with(antisense_sg17m_norm_8h_circ_BR3,
-                                             ifelse(sg17m_8h_BR3 >= 12, "palegreen4", 
-                                               ifelse(sg17m_8h_BR3 < 12 & sg17m_8h_BR3 >= 10, "palegreen3", 
-                                                      ifelse(sg17m_8h_BR3 < 10 & sg17m_8h_BR3 >= 9,
-                                                             "palegreen2",
-                                                             ifelse(sg17m_8h_BR3 < 9 & sg17m_8h_BR3 >= 6,
-                                                                    "lightgreen",
-                                                                    ifelse(sg17m_8h_BR3 < 6, "palegoldenrod",
-                                                                           "NA"))))))
+color_sg17m_BR3_8h <- with(antisense_sg17m_norm_8h_circ_BR3, ifelse(sg17m_8h_BR3 >= 12, "palegreen4", 
+                                                                    ifelse(sg17m_8h_BR3 < 12 & sg17m_8h_BR3 >= 10, "palegreen3", 
+                                                                           ifelse(sg17m_8h_BR3 < 10 & sg17m_8h_BR3 >= 9, "palegreen2",
+                                                                                  ifelse(sg17m_8h_BR3 < 9 & sg17m_8h_BR3 >= 6, "lightgreen",
+                                                                                         ifelse(sg17m_8h_BR3 < 6, "palegoldenrod", "NA"))))))
 
 tiff(filename = "save_figures/circular_plot_sg17m_8h_800dpi.tif", units="cm", res=800, width=18, height=16)
 set.seed(123)
@@ -558,8 +504,7 @@ circos.par(start.degree = 90, cell.padding = c(0, 0, 0, 0))
 
 # Initialize genome (bed file with genome sizes)
 genome <- data.frame(chr=c("SG17M"), start = c(1), end = c(7000000))
-circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000,
-                         axis.labels.cex = 0.7, labels.cex = 0.7)
+circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
 circos.genomicTrack(feature_sg17m, ylim=c(0,1), track.height = 0.1, 
@@ -618,11 +563,8 @@ nn2_antisense_n10high_4h_1 <- featureCounts_PA_antisense_df_NN2_norm_4h_4[order(
   featureCounts_PA_antisense_df_NN2_norm_4h_4$NN2_4h_BR3, decreasing=TRUE),]
 nn2_antisense_n10high_list_4h = list.append(nn2_antisense_n10high_list_4h, rownames(nn2_antisense_n10high_4h_1)[1:n_features])
 nn2_antisense_n10high_list_4h <- unlist(nn2_antisense_n10high_list_4h)
-featureCounts_PA_antisense_df_NN2_4h_high <- subset(featureCounts_PA_antisense_df_NN2,
-                                                    rownames(featureCounts_PA_antisense_df_NN2) %in%
-                                                      nn2_antisense_n10high_list_4h)
-gtf_nn2_antisense_4h_high <- subset(import_gtf_NN2, 
-                                    transcript_id %in% rownames(featureCounts_PA_antisense_df_NN2_4h_high))
+featureCounts_PA_antisense_df_NN2_4h_high <- subset(featureCounts_PA_antisense_df_NN2, rownames(featureCounts_PA_antisense_df_NN2) %in% nn2_antisense_n10high_list_4h)
+gtf_nn2_antisense_4h_high <- subset(import_gtf_NN2, transcript_id %in% rownames(featureCounts_PA_antisense_df_NN2_4h_high))
 gtf_nn2_antisense_4h_high$extract_start <- gtf_nn2_antisense_4h_high$start - feature_length
 gtf_nn2_antisense_4h_high$extract_end <- gtf_nn2_antisense_4h_high$end + feature_length
 
@@ -787,7 +729,6 @@ NN2_4h_BR1_depth <- data.frame(rbind(NN2_4h_BR1_depth_fa, NN2_4h_BR1_depth_ra))
 NN2_4h_BR1_depth$X6 <- NULL
 NN2_4h_BR1_depth$replicate <- "BR1"
 
-
 NN2_4h_BR1_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR1_depth_fs <- data.frame(NN2_4h_BR1_depth_fs)
 NN2_4h_BR1_depth_fs$side <- "forward_sense"
@@ -797,9 +738,6 @@ NN2_4h_BR1_depth_rs$side <- "reverse_sense"
 NN2_4h_BR1_depth_sense <- data.frame(rbind(NN2_4h_BR1_depth_fs, NN2_4h_BR1_depth_rs))
 NN2_4h_BR1_depth_sense$X6 <- NULL
 NN2_4h_BR1_depth_sense$replicate <- "BR1"
-
-
-
 
 NN2_4h_BR2_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR2_depth_fa <- data.frame(NN2_4h_BR2_depth_fa)
@@ -811,8 +749,6 @@ NN2_4h_BR2_depth <- data.frame(rbind(NN2_4h_BR2_depth_fa, NN2_4h_BR2_depth_ra))
 NN2_4h_BR2_depth$X6 <- NULL
 NN2_4h_BR2_depth$replicate <- "BR2"
 
-
-
 NN2_4h_BR2_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR2_depth_fs <- data.frame(NN2_4h_BR2_depth_fs)
 NN2_4h_BR2_depth_fs$side <- "forward_sense"
@@ -823,8 +759,6 @@ NN2_4h_BR2_depth_sense <- data.frame(rbind(NN2_4h_BR2_depth_fs, NN2_4h_BR2_depth
 NN2_4h_BR2_depth_sense$X6 <- NULL
 NN2_4h_BR2_depth_sense$replicate <- "BR2"
 
-
-
 NN2_4h_BR3_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR3_depth_fa <- data.frame(NN2_4h_BR3_depth_fa)
 NN2_4h_BR3_depth_fa$side <- "forward_antisense"
@@ -834,7 +768,6 @@ NN2_4h_BR3_depth_ra$side <- "reverse_antisense"
 NN2_4h_BR3_depth <- data.frame(rbind(NN2_4h_BR3_depth_fa, NN2_4h_BR3_depth_ra))
 NN2_4h_BR3_depth$X6 <- NULL
 NN2_4h_BR3_depth$replicate <- "BR3"
-
 
 NN2_4h_BR3_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_4h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_4h_BR3_depth_fs <- data.frame(NN2_4h_BR3_depth_fs)
@@ -848,7 +781,6 @@ NN2_4h_BR3_depth_sense$replicate <- "BR3"
 
 NN2_4h_depth <- data.frame(rbind(NN2_4h_BR1_depth, NN2_4h_BR2_depth, NN2_4h_BR3_depth))
 colnames(NN2_4h_depth) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
-
 NN2_4h_depth_sense <- data.frame(rbind(NN2_4h_BR1_depth_sense, NN2_4h_BR2_depth_sense, NN2_4h_BR3_depth_sense))
 colnames(NN2_4h_depth_sense) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
 
@@ -862,8 +794,6 @@ NN2_8h_BR1_depth <- data.frame(rbind(NN2_8h_BR1_depth_fa, NN2_8h_BR1_depth_ra))
 NN2_8h_BR1_depth$X6 <- NULL
 NN2_8h_BR1_depth$replicate <- "BR1"
 
-
-
 NN2_8h_BR1_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR1_depth_fs <- data.frame(NN2_8h_BR1_depth_fs)
 NN2_8h_BR1_depth_fs$side <- "forward_sense"
@@ -873,7 +803,6 @@ NN2_8h_BR1_depth_rs$side <- "reverse_sense"
 NN2_8h_BR1_depth_sense <- data.frame(rbind(NN2_8h_BR1_depth_fs, NN2_8h_BR1_depth_rs))
 NN2_8h_BR1_depth_sense$X6 <- NULL
 NN2_8h_BR1_depth_sense$replicate <- "BR1"
-
 
 NN2_8h_BR2_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR2_depth_fa <- data.frame(NN2_8h_BR2_depth_fa)
@@ -885,7 +814,6 @@ NN2_8h_BR2_depth <- data.frame(rbind(NN2_8h_BR2_depth_fa, NN2_8h_BR2_depth_ra))
 NN2_8h_BR2_depth$X6 <- NULL
 NN2_8h_BR2_depth$replicate <- "BR2"
 
-
 NN2_8h_BR2_depth_fs <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR2_depth_fs <- data.frame(NN2_8h_BR2_depth_fs)
 NN2_8h_BR2_depth_fs$side <- "forward_sense"
@@ -895,7 +823,6 @@ NN2_8h_BR2_depth_rs$side <- "reverse_sense"
 NN2_8h_BR2_depth_sense <- data.frame(rbind(NN2_8h_BR2_depth_fs, NN2_8h_BR2_depth_rs))
 NN2_8h_BR2_depth_sense$X6 <- NULL
 NN2_8h_BR2_depth_sense$replicate <- "BR2"
-
 
 NN2_8h_BR3_depth_fa <- read_delim("NN2_run/antisense_transcription/NN2_CS_8h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 NN2_8h_BR3_depth_fa <- data.frame(NN2_8h_BR3_depth_fa)
@@ -919,7 +846,6 @@ NN2_8h_BR3_depth_sense$replicate <- "BR3"
 
 NN2_8h_depth <- data.frame(rbind(NN2_8h_BR1_depth, NN2_8h_BR2_depth, NN2_8h_BR3_depth))
 colnames(NN2_8h_depth) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
-
 NN2_8h_depth_sense <- data.frame(rbind(NN2_8h_BR1_depth_sense, NN2_8h_BR2_depth_sense, NN2_8h_BR3_depth_sense))
 colnames(NN2_8h_depth_sense) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
 
@@ -933,8 +859,7 @@ NN2_4h_depth_hsp1$num <- rownames(NN2_4h_depth_hsp1)
 NN2_4h_depth_hsp1$num <- as.numeric(as.character(NN2_4h_depth_hsp1$num))
 NN2_4h_gtf_hsp1$gene_name3 <- c("tRNA", "tRNA", "tRNA", "CDS", "tRNA","unknown", "CDS", "CDS", "CDS")
 
-nn2_hsp1_plot <- ggplot() + geom_segment(data=NN2_4h_depth_hsp1, 
-                                         aes(x=start, xend=end, y=num, yend=num, color=replicate), size=1, alpha=1) + 
+nn2_hsp1_plot <- ggplot() + geom_segment(data=NN2_4h_depth_hsp1, aes(x=start, xend=end, y=num, yend=num, color=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "darkorange2", "blue", "forestgreen")) +
   xlab("\n") + ylab("Read IDs (NN2-4h antisense transcripts)") + 
   geom_segment(data=NN2_4h_gtf_hsp1, aes(x=ifelse(strandType == "+", start, ifelse(strandType == "\\.", start, end)), 
@@ -993,10 +918,8 @@ rownames(NN2_4h_depth_hsp3) <- NULL
 NN2_4h_depth_hsp3$num <- rownames(NN2_4h_depth_hsp3)
 NN2_4h_depth_hsp3$num <- as.numeric(as.character(NN2_4h_depth_hsp3$num))
 
-nn2_hsp3_plot <- ggplot() + geom_segment(data=NN2_4h_depth_hsp3, 
-                                         aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
-  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", 
-                              "darkorange2", "forestgreen", "forestgreen", "forestgreen")) +
+nn2_hsp3_plot <- ggplot() + geom_segment(data=NN2_4h_depth_hsp3, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", "darkorange2", "forestgreen", "forestgreen", "forestgreen")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=NN2_4h_gtf_hsp3, aes(x=ifelse(strandType == "+", start, ifelse(strandType == "\\.", start, end)), 
                    xend=ifelse(strandType == "+", end, ifelse(strandType == "\\.", end, start)), y=-10, yend=-10, color=gene_name3), 
@@ -1022,8 +945,7 @@ NN2_4h_depth_hsp4$num <- rownames(NN2_4h_depth_hsp4)
 NN2_4h_depth_hsp4$num <- as.numeric(as.character(NN2_4h_depth_hsp4$num))
 NN2_4h_gtf_hsp4$gene_name4 <- c("CDSu", "CDSu", "CDS", "CDSu", "CDS")
 
-nn2_hsp4_plot <- ggplot() + geom_segment(data=NN2_4h_depth_hsp4, 
-                                         aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+nn2_hsp4_plot <- ggplot() + geom_segment(data=NN2_4h_depth_hsp4, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "darkorange2", "forestgreen")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=NN2_4h_gtf_hsp4, aes(x=ifelse(strandType == "+", start, 
@@ -1080,8 +1002,7 @@ rownames(NN2_8h_depth_hsp2) <- NULL
 NN2_8h_depth_hsp2$num <- rownames(NN2_8h_depth_hsp2)
 NN2_8h_depth_hsp2$num <- as.numeric(as.character(NN2_8h_depth_hsp2$num))
 
-nn2_hsp2_plot_8h <- ggplot() + geom_segment(data=NN2_8h_depth_hsp2, 
-                                            aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+nn2_hsp2_plot_8h <- ggplot() + geom_segment(data=NN2_8h_depth_hsp2, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "darkorange2", "blue")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=NN2_8h_gtf_hsp2, aes(x=ifelse(strandType == "+", start, ifelse(strandType == "\\.", start, end)), 
@@ -1100,17 +1021,14 @@ NN2_8h_depth_hsp3 <- subset(NN2_8h_depth, start > 5600220 & end < 5606993)
 NN2_8h_gtf_hsp3 <- subset(import_gtf_NN2, start > 5600220 & end < 5606993)
 NN2_8h_depth_hsp3$length <- NN2_8h_depth_hsp3$end - NN2_8h_depth_hsp3$start
 
-NN2_8h_gtf_hsp3$gene_name3 <- c("CDS (hypothetical)", "rapA", "CDS (hypothetical)",
-                                "CDS (hypothetical)", "CDS (hypothetical)")
+NN2_8h_gtf_hsp3$gene_name3 <- c("CDS (hypothetical)", "rapA", "CDS (hypothetical)", "CDS (hypothetical)", "CDS (hypothetical)")
 NN2_8h_depth_hsp3 <- NN2_8h_depth_hsp3[order(NN2_8h_depth_hsp3$replicate, NN2_8h_depth_hsp3$start),]
 rownames(NN2_8h_depth_hsp3) <- NULL
 NN2_8h_depth_hsp3$num <- rownames(NN2_8h_depth_hsp3)
 NN2_8h_depth_hsp3$num <- as.numeric(as.character(NN2_8h_depth_hsp3$num))
 
-nn2_hsp3_plot_8h <- ggplot() + geom_segment(data=NN2_8h_depth_hsp3, 
-                                            aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
-  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", 
-                              "darkorange2", "forestgreen", "forestgreen", "forestgreen")) +
+nn2_hsp3_plot_8h <- ggplot() + geom_segment(data=NN2_8h_depth_hsp3, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", "darkorange2", "forestgreen", "forestgreen", "forestgreen")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=NN2_8h_gtf_hsp3, aes(x=ifelse(strandType == "+", start, ifelse(strandType == "\\.", start, end)), 
                    xend=ifelse(strandType == "+", end, ifelse(strandType == "\\.", end, start)),
@@ -1137,9 +1055,7 @@ NN2_8h_depth_hsp4$num <- rownames(NN2_8h_depth_hsp4)
 NN2_8h_depth_hsp4$num <- as.numeric(as.character(NN2_8h_depth_hsp4$num))
 NN2_8h_gtf_hsp4$gene_name4 <- c("CDSu", "CDSu", "CDS", "CDSu", "CDS")
 
-nn2_hsp4_plot_8h <- ggplot() + geom_segment(data=NN2_8h_depth_hsp4, 
-                                            aes(x=start, xend=end, y=num, yend=num, colour=replicate), 
-                                            size=1, alpha=1) + 
+nn2_hsp4_plot_8h <- ggplot() + geom_segment(data=NN2_8h_depth_hsp4, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "darkorange2", "forestgreen")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=NN2_8h_gtf_hsp4, aes(x=ifelse(strandType == "+", start, 
@@ -1159,10 +1075,7 @@ nn2_hsp4_plot_8h <- ggplot() + geom_segment(data=NN2_8h_depth_hsp4,
   scale_x_continuous(label=scales::comma, limits=c(326934, 331794))
 
 
-nn2_antisense_hsp_8h <-
-  ggarrange(nn2_hsp1_plot_8h, nn2_hsp2_plot_8h, nn2_hsp4_plot_8h, nrow = 1,
-          labels=c("D", "E", "F"))
-
+nn2_antisense_hsp_8h <- ggarrange(nn2_hsp1_plot_8h, nn2_hsp2_plot_8h, nn2_hsp4_plot_8h, nrow = 1, labels=c("D", "E", "F"))
 antisense_hotspots_nn2 <- ggarrange(nn2_antisense_hsp_4h, nn2_antisense_hsp_8h, nrow=2)
 # save figure with hotspot alignment
 ggsave(antisense_hotspots_nn2, filename="save_figures/Figure_06.tif", dpi=300, device="tiff", units="cm", width=28,height=23)
@@ -1181,7 +1094,6 @@ SG17M_4h_BR1_depth <- data.frame(rbind(SG17M_4h_BR1_depth_fa, SG17M_4h_BR1_depth
 SG17M_4h_BR1_depth$X6 <- NULL
 SG17M_4h_BR1_depth$replicate <- "BR1"
 
-
 SG17M_4h_BR1_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR1_depth_fs <- data.frame(SG17M_4h_BR1_depth_fs)
 SG17M_4h_BR1_depth_fs$side <- "forward_sense"
@@ -1191,7 +1103,6 @@ SG17M_4h_BR1_depth_rs$side <- "reverse_sense"
 SG17M_4h_BR1_depth_sense <- data.frame(rbind(SG17M_4h_BR1_depth_fs, SG17M_4h_BR1_depth_rs))
 SG17M_4h_BR1_depth_sense$X6 <- NULL
 SG17M_4h_BR1_depth_sense$replicate <- "BR1"
-
 
 SG17M_4h_BR2_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR2_depth_fa <- data.frame(SG17M_4h_BR2_depth_fa)
@@ -1203,7 +1114,6 @@ SG17M_4h_BR2_depth <- data.frame(rbind(SG17M_4h_BR2_depth_fa, SG17M_4h_BR2_depth
 SG17M_4h_BR2_depth$X6 <- NULL
 SG17M_4h_BR2_depth$replicate <- "BR2"
 
-
 SG17M_4h_BR2_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR2_depth_fs <- data.frame(SG17M_4h_BR2_depth_fs)
 SG17M_4h_BR2_depth_fs$side <- "forward_sense"
@@ -1213,7 +1123,6 @@ SG17M_4h_BR2_depth_rs$side <- "reverse_sense"
 SG17M_4h_BR2_depth_sense <- data.frame(rbind(SG17M_4h_BR2_depth_fs, SG17M_4h_BR2_depth_rs))
 SG17M_4h_BR2_depth_sense$X6 <- NULL
 SG17M_4h_BR2_depth_sense$replicate <- "BR2"
-
 
 SG17M_4h_BR3_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR3_depth_fa <- data.frame(SG17M_4h_BR3_depth_fa)
@@ -1225,13 +1134,10 @@ SG17M_4h_BR3_depth <- data.frame(rbind(SG17M_4h_BR3_depth_fa, SG17M_4h_BR3_depth
 SG17M_4h_BR3_depth$X6 <- NULL
 SG17M_4h_BR3_depth$replicate <- "BR3"
 
-
-SG17M_4h_BR3_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.forward_sense.bed",  "\t", 
-                                    escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR3_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR3_depth_fs <- data.frame(SG17M_4h_BR3_depth_fs)
 SG17M_4h_BR3_depth_fs$side <- "forward_sense"
-SG17M_4h_BR3_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.reverse_sense.bed",  "\t", 
-                                    escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+SG17M_4h_BR3_depth_rs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_4h_BR3.sorted.reverse_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_4h_BR3_depth_rs <- data.frame(SG17M_4h_BR3_depth_rs)
 SG17M_4h_BR3_depth_rs$side <- "reverse_sense"
 SG17M_4h_BR3_depth_sense <- data.frame(rbind(SG17M_4h_BR3_depth_fs, SG17M_4h_BR3_depth_rs))
@@ -1240,7 +1146,6 @@ SG17M_4h_BR3_depth_sense$replicate <- "BR3"
 
 SG17M_4h_depth <- data.frame(rbind(SG17M_4h_BR1_depth, SG17M_4h_BR2_depth, SG17M_4h_BR3_depth))
 colnames(SG17M_4h_depth) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
-
 SG17M_4h_depth_sense <- data.frame(rbind(SG17M_4h_BR1_depth_sense, SG17M_4h_BR2_depth_sense, SG17M_4h_BR3_depth_sense))
 colnames(SG17M_4h_depth_sense) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
 
@@ -1254,7 +1159,6 @@ SG17M_8h_BR1_depth <- data.frame(rbind(SG17M_8h_BR1_depth_fa, SG17M_8h_BR1_depth
 SG17M_8h_BR1_depth$X6 <- NULL
 SG17M_8h_BR1_depth$replicate <- "BR1"
 
-
 SG17M_8h_BR1_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR1.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR1_depth_fs <- data.frame(SG17M_8h_BR1_depth_fs)
 SG17M_8h_BR1_depth_fs$side <- "forward_sense"
@@ -1264,7 +1168,6 @@ SG17M_8h_BR1_depth_rs$side <- "reverse_sense"
 SG17M_8h_BR1_depth_sense <- data.frame(rbind(SG17M_8h_BR1_depth_fs, SG17M_8h_BR1_depth_rs))
 SG17M_8h_BR1_depth_sense$X6 <- NULL
 SG17M_8h_BR1_depth_sense$replicate <- "BR1"
-
 
 SG17M_8h_BR2_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR2.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR2_depth_fa <- data.frame(SG17M_8h_BR2_depth_fa)
@@ -1276,7 +1179,6 @@ SG17M_8h_BR2_depth <- data.frame(rbind(SG17M_8h_BR2_depth_fa, SG17M_8h_BR2_depth
 SG17M_8h_BR2_depth$X6 <- NULL
 SG17M_8h_BR2_depth$replicate <- "BR2"
 
-
 SG17M_8h_BR2_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR2.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR2_depth_fs <- data.frame(SG17M_8h_BR2_depth_fs)
 SG17M_8h_BR2_depth_fs$side <- "forward_sense"
@@ -1287,7 +1189,6 @@ SG17M_8h_BR2_depth_sense <- data.frame(rbind(SG17M_8h_BR2_depth_fs, SG17M_8h_BR2
 SG17M_8h_BR2_depth_sense$X6 <- NULL
 SG17M_8h_BR2_depth_sense$replicate <- "BR2"
 
-
 SG17M_8h_BR3_depth_fa <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR3.sorted.forward_antisense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR3_depth_fa <- data.frame(SG17M_8h_BR3_depth_fa)
 SG17M_8h_BR3_depth_fa$side <- "forward_antisense"
@@ -1297,7 +1198,6 @@ SG17M_8h_BR3_depth_ra$side <- "reverse_antisense"
 SG17M_8h_BR3_depth <- data.frame(rbind(SG17M_8h_BR3_depth_fa, SG17M_8h_BR3_depth_ra))
 SG17M_8h_BR3_depth$X6 <- NULL
 SG17M_8h_BR3_depth$replicate <- "BR3"
-
 
 SG17M_8h_BR3_depth_fs <- read_delim("SG17M_run/antisense_transcription/SG17M_CS_8h_BR3.sorted.forward_sense.bed",  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 SG17M_8h_BR3_depth_fs <- data.frame(SG17M_8h_BR3_depth_fs)
@@ -1311,7 +1211,6 @@ SG17M_8h_BR3_depth_sense$replicate <- "BR3"
 
 SG17M_8h_depth <- data.frame(rbind(SG17M_8h_BR1_depth, SG17M_8h_BR2_depth, SG17M_8h_BR3_depth))
 colnames(SG17M_8h_depth) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
-
 SG17M_8h_depth_sense <- data.frame(rbind(SG17M_8h_BR1_depth_sense, SG17M_8h_BR2_depth_sense, SG17M_8h_BR3_depth_sense))
 colnames(SG17M_8h_depth_sense) <- c("isolate", "start", "end", "read_id", "qual", "side", "replicate")
 
@@ -1325,8 +1224,7 @@ SG17M_4h_depth_hsp1$num <- rownames(SG17M_4h_depth_hsp1)
 SG17M_4h_depth_hsp1$num <- as.numeric(as.character(SG17M_4h_depth_hsp1$num))
 SG17M_4h_gtf_hsp1$gene_name3 <- c("tRNA", "tRNA", "tRNA", "CDS", "tRNA","unknown", "CDS", "CDS", "CDS")
 
-SG17M_hsp1_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp1, 
-               aes(x=start, xend=end, y=num, yend=num, color=replicate), size=1, alpha=1) + 
+SG17M_hsp1_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp1, aes(x=start, xend=end, y=num, yend=num, color=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "darkorange2", "blue", "forestgreen")) +
   xlab("\n") + ylab("Read IDs (SG17M-4h antisense transcripts)") + 
   geom_segment(data=SG17M_4h_gtf_hsp1, aes(x=ifelse(strandType == "+", start, 
@@ -1353,16 +1251,13 @@ SG17M_hsp1_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp1,
 # Antisense hotspot 2
 SG17M_4h_depth_hsp2 <- subset(SG17M_4h_depth, start > 5814083 & end < 5815379)
 SG17M_4h_gtf_hsp2 <- subset(import_gtf_sg17m, start > 5814083 & end < 5815379)
-SG17M_4h_depth_hsp2 <- SG17M_4h_depth_hsp2[order(SG17M_4h_depth_hsp2$replicate,
-                                             SG17M_4h_depth_hsp2$start),]
+SG17M_4h_depth_hsp2 <- SG17M_4h_depth_hsp2[order(SG17M_4h_depth_hsp2$replicate, SG17M_4h_depth_hsp2$start),]
 SG17M_4h_gtf_hsp2$gene_name4 <- c("Lys-Anticodon-TTT (pKLC102)", "soj")
 rownames(SG17M_4h_depth_hsp2) <- NULL
 SG17M_4h_depth_hsp2$num <- rownames(SG17M_4h_depth_hsp2)
 SG17M_4h_depth_hsp2$num <- as.numeric(as.character(SG17M_4h_depth_hsp2$num))
 
-SG17M_hsp2_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp2, 
-               aes(x=start, xend=end, y=num, yend=num, colour=replicate), 
-               size=1, alpha=1) + 
+SG17M_hsp2_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp2, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "blue", "darkorange2")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=SG17M_4h_gtf_hsp2, aes(x=ifelse(strandType == "+", start, 
@@ -1379,22 +1274,18 @@ SG17M_hsp2_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp2,
   scale_x_continuous(label=scales::comma, limits=c(5814083, 5815379))
 
 
-
 # Antisense hotspot 3
 SG17M_4h_depth_hsp3 <- subset(SG17M_4h_depth, start > 5836292 & end < 5844865)
 SG17M_4h_gtf_hsp3 <- subset(import_gtf_sg17m, start > 5836292 & end < 5844865)
 SG17M_4h_depth_hsp3 <- SG17M_4h_depth_hsp3[order(SG17M_4h_depth_hsp3$replicate,SG17M_4h_depth_hsp3$start),]
-SG17M_4h_gtf_hsp3$gene_name4 <- c("CDS (hypothetical)","rapA", "CDS (hypothetical)", 
-                                  "CDS (hypothetical)", "CDS (hypothetical)")
+SG17M_4h_gtf_hsp3$gene_name4 <- c("CDS (hypothetical)","rapA", "CDS (hypothetical)", "CDS (hypothetical)", "CDS (hypothetical)")
 
 rownames(SG17M_4h_depth_hsp3) <- NULL
 SG17M_4h_depth_hsp3$num <- rownames(SG17M_4h_depth_hsp3)
 SG17M_4h_depth_hsp3$num <- as.numeric(as.character(SG17M_4h_depth_hsp3$num))
 
-SG17M_hsp3_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp3, 
-               aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
-  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", "darkorange2", 
-                              "forestgreen", "forestgreen", "forestgreen")) +
+SG17M_hsp3_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp3, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", "darkorange2", "forestgreen", "forestgreen", "forestgreen")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=SG17M_4h_gtf_hsp3, 
                aes(x=ifelse(strandType == "+", start, ifelse(strandType == "\\.", start, end)), 
@@ -1417,15 +1308,13 @@ SG17M_4h_depth_hsp4 <- subset(SG17M_4h_depth, start > 551623 & end < 556783)
 SG17M_4h_gtf_hsp4 <- subset(import_gtf_sg17m, start > 551623 & end < 556783)
 SG17M_4h_depth_hsp4 <- SG17M_4h_depth_hsp4[order(SG17M_4h_depth_hsp4$replicate, SG17M_4h_depth_hsp4$start),]
 
-SG17M_4h_gtf_hsp4$gene_name4 <- c("CDS (hypothetical)","CDS (hypothetical)", 
-                                  "CDS", "CDS (hypothetical)", "CDS")
+SG17M_4h_gtf_hsp4$gene_name4 <- c("CDS (hypothetical)","CDS (hypothetical)", "CDS", "CDS (hypothetical)", "CDS")
 
 rownames(SG17M_4h_depth_hsp4) <- NULL
 SG17M_4h_depth_hsp4$num <- rownames(SG17M_4h_depth_hsp4)
 SG17M_4h_depth_hsp4$num <- as.numeric(as.character(SG17M_4h_depth_hsp4$num))
 
-SG17M_hsp4_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp4, 
-                                           aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+SG17M_hsp4_plot <- ggplot() + geom_segment(data=SG17M_4h_depth_hsp4, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "darkorange2", "forestgreen")) +
   xlab("\n") + ylab(" ") + 
   geom_segment(data=SG17M_4h_gtf_hsp4, 
@@ -1450,13 +1339,11 @@ SG17M_8h_depth_hsp1 <- SG17M_8h_depth_hsp1[order(SG17M_8h_depth_hsp1$replicate, 
 rownames(SG17M_8h_depth_hsp1) <- NULL
 SG17M_8h_depth_hsp1$num <- rownames(SG17M_8h_depth_hsp1)
 SG17M_8h_depth_hsp1$num <- as.numeric(as.character(SG17M_8h_depth_hsp1$num))
-SG17M_8h_gtf_hsp1$gene_name4 <- c("tRNA", "tRNA", "tRNA", 
-                                "CDS", "tRNA","unknown", "CDS", "CDS", "CDS")
+SG17M_8h_gtf_hsp1$gene_name4 <- c("tRNA", "tRNA", "tRNA", "CDS", "tRNA","unknown", "CDS", "CDS", "CDS")
 
 SG17M_hsp1_plot_8h <- ggplot() + geom_segment(data=SG17M_8h_depth_hsp1, 
                aes(x=start, xend=end, y=num, yend=num, color=replicate), size=1, alpha=1) + 
-  scale_color_manual(values=c("gray22", "gold2", "lightcyan3",
-                              "darkorange2", "blue", "forestgreen")) +
+  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "darkorange2", "blue", "forestgreen")) +
   xlab("\n  ") + ylab("Read IDs (SG17M-8h antisense transcripts)") + 
   geom_segment(data=SG17M_8h_gtf_hsp1, 
                aes(x=ifelse(strandType == "+", start, 
@@ -1492,8 +1379,7 @@ SG17M_8h_gtf_hsp2$gene_name4 <- c("Lys-Anticodon-TTT (pKLC102)", "soj")
 SG17M_8h_depth_hsp2$num <- rownames(SG17M_8h_depth_hsp2)
 SG17M_8h_depth_hsp2$num <- as.numeric(as.character(SG17M_8h_depth_hsp2$num))
 
-SG17M_hsp2_plot_8h <- ggplot() + geom_segment(data=SG17M_8h_depth_hsp2, 
-               aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+SG17M_hsp2_plot_8h <- ggplot() + geom_segment(data=SG17M_8h_depth_hsp2, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
   scale_color_manual(values=c("gray22", "gold2", "lightcyan3","blue", "darkorange2")) + 
   xlab("Genome position") + ylab(" ") + 
   geom_segment(data=SG17M_4h_gtf_hsp2, 
@@ -1516,8 +1402,7 @@ SG17M_8h_depth_hsp3 <- subset(SG17M_8h_depth, start > 5836292 & end < 5844865)
 SG17M_8h_gtf_hsp3 <- subset(import_gtf_sg17m, start > 5836292 & end < 5844865)
 SG17M_8h_depth_hsp3$length <- SG17M_8h_depth_hsp3$end - SG17M_8h_depth_hsp3$start
 
-SG17M_8h_gtf_hsp3$gene_name4 <- c("CDS (hypothetical)","rapA", 
-                                  "CDS (hypothetical)", "CDS (hypothetical)", "CDS (hypothetical)")
+SG17M_8h_gtf_hsp3$gene_name4 <- c("CDS (hypothetical)","rapA", "CDS (hypothetical)", "CDS (hypothetical)", "CDS (hypothetical)")
 SG17M_8h_depth_hsp3 <- SG17M_8h_depth_hsp3[order(SG17M_8h_depth_hsp3$replicate, SG17M_8h_depth_hsp3$start),]
 rownames(SG17M_8h_depth_hsp3) <- NULL
 SG17M_8h_depth_hsp3$num <- rownames(SG17M_8h_depth_hsp3)
@@ -1526,13 +1411,11 @@ SG17M_8h_depth_hsp3$num <- as.numeric(as.character(SG17M_8h_depth_hsp3$num))
 SG17M_hsp3_plot_8h <- ggplot() + geom_segment(data=SG17M_8h_depth_hsp3, 
                                               aes(x=start, xend=end, y=num, yend=num, 
                                              colour=replicate), size=1, alpha=1) + 
-  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", "darkorange2", 
-                              "forestgreen", "forestgreen", "forestgreen")) +
+  scale_color_manual(values=c("gray22", "gold2", "lightcyan3", "forestgreen", "darkorange2", "forestgreen", "forestgreen", "forestgreen")) +
   xlab(" ") + ylab(" ") + 
-  geom_segment(data=SG17M_8h_gtf_hsp3, aes(x=ifelse(strandType == "+", start, 
-                            ifelse(strandType == "\\.", start, end)), 
-                   xend=ifelse(strandType == "+", end, 
-                               ifelse(strandType == "\\.", end, start)), y=-20, yend=-20, color=gene_name4), 
+  geom_segment(data=SG17M_8h_gtf_hsp3, aes(x=ifelse(strandType == "+", start, ifelse(strandType == "\\.", start, end)), 
+                                           xend=ifelse(strandType == "+", end, 
+                                                       ifelse(strandType == "\\.", end, start)), y=-20, yend=-20, color=gene_name4), 
                arrow = arrow(length = unit(0.06, "inches")), size = 1, alpha=1) +
   geom_label(data=SG17M_8h_gtf_hsp3, aes(y=-95, x = 5838292), label="CDS (hypothetical)", size=2.5, color="forestgreen") + 
   geom_label(data=SG17M_8h_gtf_hsp3, aes(y=-95, x = 5840292), label="rapA", size=2.5, color="darkorange2") + 
@@ -1548,18 +1431,14 @@ SG17M_hsp3_plot_8h <- ggplot() + geom_segment(data=SG17M_8h_depth_hsp3,
 SG17M_8h_depth_hsp4 <- subset(SG17M_8h_depth, start > 551623 & end < 556783)
 SG17M_8h_gtf_hsp4 <- subset(import_gtf_sg17m, start > 551623 & end < 556783)
 SG17M_8h_depth_hsp4 <- SG17M_8h_depth_hsp4[order(SG17M_8h_depth_hsp4$replicate, SG17M_8h_depth_hsp4$start),]
-SG17M_8h_gtf_hsp4$gene_name4 <- c("CDS (hypothetical)","CDS (hypothetical)", 
-                                  "CDS", "CDS (hypothetical)", "CDS")
+SG17M_8h_gtf_hsp4$gene_name4 <- c("CDS (hypothetical)","CDS (hypothetical)", "CDS", "CDS (hypothetical)", "CDS")
 
 rownames(SG17M_8h_depth_hsp4) <- NULL
 SG17M_8h_depth_hsp4$num <- rownames(SG17M_8h_depth_hsp4)
 SG17M_8h_depth_hsp4$num <- as.numeric(as.character(SG17M_8h_depth_hsp4$num))
 
-SG17M_hsp4_plot_8h <- ggplot() +
-  geom_segment(data=SG17M_8h_depth_hsp4, 
-               aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
-  scale_color_manual(values=c("gray22", "gold2", "lightcyan3",
-                              "darkorange2", "forestgreen")) + xlab("\n") + ylab(" ") + 
+SG17M_hsp4_plot_8h <- ggplot() + geom_segment(data=SG17M_8h_depth_hsp4, aes(x=start, xend=end, y=num, yend=num, colour=replicate), size=1, alpha=1) + 
+  scale_color_manual(values=c("gray22", "gold2", "lightcyan3","darkorange2", "forestgreen")) + xlab("\n") + ylab(" ") + 
   geom_segment(data=SG17M_8h_gtf_hsp4, aes(x=ifelse(strandType == "+", start, 
                             ifelse(strandType == "\\.", start, end)), 
                    xend=ifelse(strandType == "+", end, 
@@ -1576,7 +1455,6 @@ SG17M_hsp4_plot_8h <- ggplot() +
         axis.ticks.y = element_blank(),
         axis.text.x = element_text(angle=45,hjust=1,size=8)) +
   scale_x_continuous(label=scales::comma)
-
 
 sg17m_4h_antisense_hotspots <- ggarrange(SG17M_hsp1_plot, SG17M_hsp2_plot, SG17M_hsp4_plot, nrow= 1, labels=c("A", "B", "C"))
 sg17m_8h_antisense_hotspots <- ggarrange(SG17M_hsp1_plot_8h, SG17M_hsp2_plot_8h, SG17M_hsp4_plot_8h, nrow= 1, labels=c("D", "E", "F"))
