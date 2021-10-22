@@ -60,6 +60,7 @@ nn2_accessory_bed <- select(nn2_accessory, c(start, end))
 nn2_tRNA <- subset(import_gtf_NN2, gene_name3 == "tRNA")
 nn2_tRNA_bed <- select(nn2_accessory, c(start, end))
 
+
 # import and clean annotation file, SG17M
 import_gtf_sg17m <- read.table(UserDefinedAnnotationRef_sg17m, sep = '\t', header = FALSE)
 colnames(import_gtf_sg17m) <- c("Isolate", "database", "featureType", "start", "end", "V6", "strandType", "V8", "V9")
@@ -84,16 +85,14 @@ sg17m_accessory_bed <- select(sg17m_accessory, c(start, end))
 sg17m_tRNA <- subset(import_gtf_sg17m, gene_name3 == "tRNA")
 sg17m_tRNA_bed <- select(sg17m_accessory, c(start, end))
 
+
 ############################################################################################################
 # import NN2 bam files and count/normalise alignments
 input_bam_NN2<- list.files(path = "NN2_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
 
 # antisense counting, NN2
-featureCounts_PA_antisenseNN2 <- featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2, 
-                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
-                GTF.featureType = c("exon", "CDS"), strandSpecific = 2, isLongRead = TRUE, 
-                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
-                countMultiMappingReads = TRUE)
+featureCounts_PA_antisenseNN2 <- featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2, isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
+                                               GTF.featureType = c("exon", "CDS"), strandSpecific = 2, isLongRead = TRUE, useMetaFeatures = FALSE, allowMultiOverlap = TRUE, countMultiMappingReads = TRUE)
 
 featureCounts_PA_antisense_df_NN2_norm <- featureCounts_PA_antisense_df_NN2
 featureCounts_PA_antisense_df_NN2_norm_4h <- featureCounts_PA_antisense_df_NN2_norm[,1:3]
@@ -111,13 +110,10 @@ featureCounts_PA_antisense_df_NN2 <- featureCounts_PA_antisenseNN2$counts
 featureCounts_PA_antisense_df_NN2 <- data.frame(featureCounts_PA_antisense_df_NN2)
 colnames(featureCounts_PA_antisense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h_BR3", "NN2_8h_BR1", "NN2_8h_BR2", "NN2_8h_BR3")
 
-# sense counting, NN2
-featureCounts_PA_senseNN2 <- featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2,
-                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
-                GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE, 
-                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
-                countMultiMappingReads = TRUE)
 
+# sense counting, NN2
+featureCounts_PA_senseNN2 <- featureCounts(input_bam_NN2, annot.ext = UserDefinedAnnotationRef_NN2, isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
+                                           GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE, useMetaFeatures = FALSE, allowMultiOverlap = TRUE, countMultiMappingReads = TRUE)
 
 featureCounts_PA_sense_df_NN2_norm <- featureCounts_PA_sense_df_NN2
 featureCounts_PA_sense_df_NN2_norm_4h <- featureCounts_PA_sense_df_NN2_norm[,1:3]
@@ -140,13 +136,10 @@ colnames(featureCounts_PA_sense_df_NN2) <- c("NN2_4h_BR1", "NN2_4h_BR2", "NN2_4h
 # import SG17M bam files and count/normalise alignments
 input_bam_sg17m <- list.files(path = "SG17M_run/d_raw_bam", pattern = ".bam", full.names = TRUE)
 
-
 # antisense counting, SG17M
-featureCounts_PA_antisensesg17m <- featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m, 
-                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
-                GTF.featureType = c("exon", "CDS"), strandSpecific = 2, isLongRead = TRUE, 
-                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
-                countMultiMappingReads = TRUE)
+featureCounts_PA_antisensesg17m <- featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m, isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
+                                                 GTF.featureType = c("exon", "CDS"), strandSpecific = 2, isLongRead = TRUE, useMetaFeatures = FALSE, allowMultiOverlap = TRUE, countMultiMappingReads = TRUE)
+
 featureCounts_PA_antisense_df_sg17m_norm <- featureCounts_PA_antisense_df_sg17m
 featureCounts_PA_antisense_df_sg17m_norm_4h <- featureCounts_PA_antisense_df_sg17m_norm[,1:3]
 featureCounts_PA_antisense_df_sg17m_norm_4h_1 <- DGEList(counts=featureCounts_PA_antisense_df_sg17m_norm_4h)
@@ -165,11 +158,9 @@ colnames(featureCounts_PA_antisense_df_sg17m) <- c("sg17m_4h_BR1", "sg17m_4h_BR2
 
 
 # sense counting, SG17M
-featureCounts_PA_sensesg17m <- featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m,
-                isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
-                GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE, 
-                useMetaFeatures = FALSE, allowMultiOverlap = TRUE,
-                countMultiMappingReads = TRUE)
+featureCounts_PA_sensesg17m <- featureCounts(input_bam_sg17m, annot.ext = UserDefinedAnnotationRef_sg17m, isGTFAnnotationFile = TRUE, GTF.attrType="transcript_id", 
+                                             GTF.featureType = c("exon", "CDS"), strandSpecific = 1, isLongRead = TRUE,  useMetaFeatures = FALSE, allowMultiOverlap = TRUE, countMultiMappingReads = TRUE)
+
 featureCounts_PA_sense_df_sg17m_norm <- featureCounts_PA_sense_df_sg17m
 featureCounts_PA_sense_df_sg17m_norm_4h <- featureCounts_PA_sense_df_sg17m_norm[,1:3]
 featureCounts_PA_sense_df_sg17m_norm_4h_1 <- DGEList(counts=featureCounts_PA_sense_df_sg17m_norm_4h)
@@ -232,51 +223,35 @@ genome <- data.frame(chr=c("NN2"), start = c(1), end = c(7000000))
 circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
-feature <- data.frame(chr = c(nn2_accessory$Isolate), 
-                      start = c(nn2_accessory$start), 
-                      end = c(nn2_accessory$end))
+feature <- data.frame(chr = c(nn2_accessory$Isolate), start = c(nn2_accessory$start), end = c(nn2_accessory$end))
 
-circos.genomicTrack(feature, ylim=c(0,1), track.height = 0.1, 
-                    panel.fun = function(region, value, ...) {
+circos.genomicTrack(feature, ylim=c(0,1), track.height = 0.1, panel.fun = function(region, value, ...) {
                       circos.genomicRect(region, value, col="gold", border="gold")}, bg.col = "dodgerblue4")
 
-feature_tRNA <- data.frame(chr = c(nn2_tRNA$Isolate), 
-                      start = c(nn2_tRNA$start), 
-                      end = c(nn2_tRNA$end),
-                      value = 2)
+feature_tRNA <- data.frame(chr = c(nn2_tRNA$Isolate), start = c(nn2_tRNA$start), end = c(nn2_tRNA$end), value = 2)
 
 circos.genomicDensity(feature_tRNA, count_by = "number", col="black", area=TRUE)
 
+antisense_cov1 <- data.frame(chr = c(antisense_NN2_norm_4h_circ_BR1$isolate), start = c(antisense_NN2_norm_4h_circ_BR1$start), 
+                             end = c(antisense_NN2_norm_4h_circ_BR1$end), depth = c(antisense_NN2_norm_4h_circ_BR1$NN2_4h_BR1))
 
-antisense_cov1 <- data.frame(chr = c(antisense_NN2_norm_4h_circ_BR1$isolate),
-                            start = c(antisense_NN2_norm_4h_circ_BR1$start),
-                            end = c(antisense_NN2_norm_4h_circ_BR1$end),
-                            depth = c(antisense_NN2_norm_4h_circ_BR1$NN2_4h_BR1))
-
-circos.genomicTrack(antisense_cov1, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov1, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_NN2_BR1_4h, ...)})
 
-antisense_cov2 <- data.frame(chr = c(antisense_NN2_norm_4h_circ_BR2$isolate),
-                            start = c(antisense_NN2_norm_4h_circ_BR2$start),
-                            end = c(antisense_NN2_norm_4h_circ_BR2$end),
-                            depth = c(antisense_NN2_norm_4h_circ_BR2$NN2_4h_BR2))
+antisense_cov2 <- data.frame(chr = c(antisense_NN2_norm_4h_circ_BR2$isolate), start = c(antisense_NN2_norm_4h_circ_BR2$start),
+                            end = c(antisense_NN2_norm_4h_circ_BR2$end), depth = c(antisense_NN2_norm_4h_circ_BR2$NN2_4h_BR2))
 
-circos.genomicTrack(antisense_cov2, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov2, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_NN2_BR2_4h, ...)})
 
-antisense_cov3 <- data.frame(chr = c(antisense_NN2_norm_4h_circ_BR3$isolate),
-                            start = c(antisense_NN2_norm_4h_circ_BR3$start),
-                            end = c(antisense_NN2_norm_4h_circ_BR3$end),
-                            depth = c(antisense_NN2_norm_4h_circ_BR3$NN2_4h_BR3))
+antisense_cov3 <- data.frame(chr = c(antisense_NN2_norm_4h_circ_BR3$isolate), start = c(antisense_NN2_norm_4h_circ_BR3$start),
+                            end = c(antisense_NN2_norm_4h_circ_BR3$end), depth = c(antisense_NN2_norm_4h_circ_BR3$NN2_4h_BR3))
 
-circos.genomicTrack(antisense_cov3, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov3, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_NN2_BR3_4h, ...)})
@@ -327,16 +302,13 @@ genome <- data.frame(chr=c("NN2"), start = c(1), end = c(7000000))
 circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
-circos.genomicTrack(feature, ylim=c(0,1), track.height = 0.1, 
-                    panel.fun = function(region, value, ...) {
+circos.genomicTrack(feature, ylim=c(0,1), track.height = 0.1, panel.fun = function(region, value, ...) {
                       circos.genomicRect(region, value, col="gold", border="gold")}, bg.col = "dodgerblue4")
 
 circos.genomicDensity(feature_tRNA, count_by = "number", col="black", area=TRUE)
 
-antisense_cov4 <- data.frame(chr = c(antisense_NN2_norm_8h_circ_BR1$isolate),
-                            start = c(antisense_NN2_norm_8h_circ_BR1$start),
-                            end = c(antisense_NN2_norm_8h_circ_BR1$end),
-                            depth = c(antisense_NN2_norm_8h_circ_BR1$NN2_8h_BR1))
+antisense_cov4 <- data.frame(chr = c(antisense_NN2_norm_8h_circ_BR1$isolate), start = c(antisense_NN2_norm_8h_circ_BR1$start),
+                            end = c(antisense_NN2_norm_8h_circ_BR1$end), depth = c(antisense_NN2_norm_8h_circ_BR1$NN2_8h_BR1))
 
 circos.genomicTrack(antisense_cov4, track.height = 0.1,
                     stack = TRUE, panel.fun = function(region, value, ...) {
@@ -344,10 +316,8 @@ circos.genomicTrack(antisense_cov4, track.height = 0.1,
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_NN2_BR1_8h, ...)})
 
-antisense_cov5 <- data.frame(chr = c(antisense_NN2_norm_8h_circ_BR2$isolate),
-                            start = c(antisense_NN2_norm_8h_circ_BR2$start),
-                            end = c(antisense_NN2_norm_8h_circ_BR2$end),
-                            depth = c(antisense_NN2_norm_8h_circ_BR2$NN2_8h_BR2))
+antisense_cov5 <- data.frame(chr = c(antisense_NN2_norm_8h_circ_BR2$isolate), start = c(antisense_NN2_norm_8h_circ_BR2$start),
+                            end = c(antisense_NN2_norm_8h_circ_BR2$end), depth = c(antisense_NN2_norm_8h_circ_BR2$NN2_8h_BR2))
 
 circos.genomicTrack(antisense_cov5, track.height = 0.1,
                     stack = TRUE, panel.fun = function(region, value, ...) {
@@ -355,16 +325,14 @@ circos.genomicTrack(antisense_cov5, track.height = 0.1,
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_NN2_BR2_8h, ...)})
 
-antisense_cov6 <- data.frame(chr = c(antisense_NN2_norm_8h_circ_BR3$isolate),
-                            start = c(antisense_NN2_norm_8h_circ_BR3$start),
-                            end = c(antisense_NN2_norm_8h_circ_BR3$end),
-                            depth = c(antisense_NN2_norm_8h_circ_BR3$NN2_8h_BR3))
+antisense_cov6 <- data.frame(chr = c(antisense_NN2_norm_8h_circ_BR3$isolate), start = c(antisense_NN2_norm_8h_circ_BR3$start),
+                            end = c(antisense_NN2_norm_8h_circ_BR3$end), depth = c(antisense_NN2_norm_8h_circ_BR3$NN2_8h_BR3))
 
-circos.genomicTrack(antisense_cov6, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov6, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_NN2_BR3_8h, ...)})
+
 circos.text(6200000,10, "B", cex=1.5, facing = "downward", font=2)
 text(0,0, "NN2-8h", cex=0.8)
 dev.off()
@@ -413,50 +381,35 @@ genome <- data.frame(chr=c("SG17M"), start = c(1), end = c(7000000))
 circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
-feature_sg17m <- data.frame(chr = c(sg17m_accessory$Isolate), 
-                      start = c(sg17m_accessory$start), 
-                      end = c(sg17m_accessory$end))
+feature_sg17m <- data.frame(chr = c(sg17m_accessory$Isolate), start = c(sg17m_accessory$start), end = c(sg17m_accessory$end))
 
-circos.genomicTrack(feature_sg17m, ylim=c(0,1), track.height = 0.1, 
-                    panel.fun = function(region, value, ...) {
+circos.genomicTrack(feature_sg17m, ylim=c(0,1), track.height = 0.1, panel.fun = function(region, value, ...) {
                       circos.genomicRect(region, value, col="gold", border="gold")}, bg.col = "dodgerblue4")
 
-feature_tRNA_sg17m <- data.frame(chr = c(sg17m_tRNA$Isolate), 
-                      start = c(sg17m_tRNA$start), 
-                      end = c(sg17m_tRNA$end),
-                      value = 2)
+feature_tRNA_sg17m <- data.frame(chr = c(sg17m_tRNA$Isolate), start = c(sg17m_tRNA$start), end = c(sg17m_tRNA$end), value = 2)
 
 circos.genomicDensity(feature_tRNA_sg17m, count_by = "number", col="black", area=TRUE)
 
-antisense_cov1_sg17m <- data.frame(chr = c(antisense_sg17m_norm_4h_circ_BR1$isolate),
-                            start = c(antisense_sg17m_norm_4h_circ_BR1$start),
-                            end = c(antisense_sg17m_norm_4h_circ_BR1$end),
-                            depth = c(antisense_sg17m_norm_4h_circ_BR1$sg17m_4h_BR1))
+antisense_cov1_sg17m <- data.frame(chr = c(antisense_sg17m_norm_4h_circ_BR1$isolate), start = c(antisense_sg17m_norm_4h_circ_BR1$start),
+                                   end = c(antisense_sg17m_norm_4h_circ_BR1$end), depth = c(antisense_sg17m_norm_4h_circ_BR1$sg17m_4h_BR1))
 
-circos.genomicTrack(antisense_cov1_sg17m, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov1_sg17m, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_sg17m_BR1_4h, ...)})
 
-antisense_cov2_sg17m <- data.frame(chr = c(antisense_sg17m_norm_4h_circ_BR2$isolate),
-                            start = c(antisense_sg17m_norm_4h_circ_BR2$start),
-                            end = c(antisense_sg17m_norm_4h_circ_BR2$end),
-                            depth = c(antisense_sg17m_norm_4h_circ_BR2$sg17m_4h_BR2))
+antisense_cov2_sg17m <- data.frame(chr = c(antisense_sg17m_norm_4h_circ_BR2$isolate), start = c(antisense_sg17m_norm_4h_circ_BR2$start),
+                            end = c(antisense_sg17m_norm_4h_circ_BR2$end), depth = c(antisense_sg17m_norm_4h_circ_BR2$sg17m_4h_BR2))
 
-circos.genomicTrack(antisense_cov2_sg17m, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov2_sg17m, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_sg17m_BR2_4h, ...)})
 
-antisense_cov3_sg17m <- data.frame(chr = c(antisense_sg17m_norm_4h_circ_BR3$isolate),
-                            start = c(antisense_sg17m_norm_4h_circ_BR3$start),
-                            end = c(antisense_sg17m_norm_4h_circ_BR3$end),
-                            depth = c(antisense_sg17m_norm_4h_circ_BR3$sg17m_4h_BR3))
+antisense_cov3_sg17m <- data.frame(chr = c(antisense_sg17m_norm_4h_circ_BR3$isolate), start = c(antisense_sg17m_norm_4h_circ_BR3$start),
+                            end = c(antisense_sg17m_norm_4h_circ_BR3$end), depth = c(antisense_sg17m_norm_4h_circ_BR3$sg17m_4h_BR3))
 
-circos.genomicTrack(antisense_cov3_sg17m, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov3_sg17m, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_sg17m_BR3_4h, ...)})
@@ -507,41 +460,31 @@ genome <- data.frame(chr=c("SG17M"), start = c(1), end = c(7000000))
 circos.genomicInitialize(genome, plotType = c("axis"), major.by = 1000000, axis.labels.cex = 0.7, labels.cex = 0.7)
 
 # Add track with annotation
-circos.genomicTrack(feature_sg17m, ylim=c(0,1), track.height = 0.1, 
-                    panel.fun = function(region, value, ...) {
+circos.genomicTrack(feature_sg17m, ylim=c(0,1), track.height = 0.1, panel.fun = function(region, value, ...) {
                       circos.genomicRect(region, value, col="gold", border="gold")}, bg.col = "dodgerblue4")
 
 circos.genomicDensity(feature_tRNA_sg17m, count_by = "number", col="black", area=TRUE)
 
-antisense_cov4_sg17m <- data.frame(chr = c(antisense_sg17m_norm_8h_circ_BR1$isolate),
-                            start = c(antisense_sg17m_norm_8h_circ_BR1$start),
-                            end = c(antisense_sg17m_norm_8h_circ_BR1$end),
-                            depth = c(antisense_sg17m_norm_8h_circ_BR1$sg17m_8h_BR1))
+antisense_cov4_sg17m <- data.frame(chr = c(antisense_sg17m_norm_8h_circ_BR1$isolate), start = c(antisense_sg17m_norm_8h_circ_BR1$start),
+                                   end = c(antisense_sg17m_norm_8h_circ_BR1$end), depth = c(antisense_sg17m_norm_8h_circ_BR1$sg17m_8h_BR1))
 
-circos.genomicTrack(antisense_cov4_sg17m, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov4_sg17m, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_sg17m_BR1_8h, ...)})
 
-antisense_cov5_sg17m <- data.frame(chr = c(antisense_sg17m_norm_8h_circ_BR2$isolate),
-                            start = c(antisense_sg17m_norm_8h_circ_BR2$start),
-                            end = c(antisense_sg17m_norm_8h_circ_BR2$end),
-                            depth = c(antisense_sg17m_norm_8h_circ_BR2$sg17m_8h_BR2))
+antisense_cov5_sg17m <- data.frame(chr = c(antisense_sg17m_norm_8h_circ_BR2$isolate), start = c(antisense_sg17m_norm_8h_circ_BR2$start),
+                                   end = c(antisense_sg17m_norm_8h_circ_BR2$end), depth = c(antisense_sg17m_norm_8h_circ_BR2$sg17m_8h_BR2))
 
-circos.genomicTrack(antisense_cov5_sg17m, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov5_sg17m, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_sg17m_BR2_8h, ...)})
 
-antisense_cov6_sg17m <- data.frame(chr = c(antisense_sg17m_norm_8h_circ_BR3$isolate),
-                            start = c(antisense_sg17m_norm_8h_circ_BR3$start),
-                            end = c(antisense_sg17m_norm_8h_circ_BR3$end),
-                            depth = c(antisense_sg17m_norm_8h_circ_BR3$sg17m_8h_BR3))
+antisense_cov6_sg17m <- data.frame(chr = c(antisense_sg17m_norm_8h_circ_BR3$isolate), start = c(antisense_sg17m_norm_8h_circ_BR3$start),
+                                   end = c(antisense_sg17m_norm_8h_circ_BR3$end), depth = c(antisense_sg17m_norm_8h_circ_BR3$sg17m_8h_BR3))
 
-circos.genomicTrack(antisense_cov6_sg17m, track.height = 0.1,
-                    stack = TRUE, panel.fun = function(region, value, ...) {
+circos.genomicTrack(antisense_cov6_sg17m, track.height = 0.1, stack = TRUE, panel.fun = function(region, value, ...) {
     cex = scale(value[[1]]) / 5
     i = getI(...)
     circos.genomicPoints(region, value, cex = cex, pch = 16, col = color_sg17m_BR3_8h, ...)})
@@ -580,9 +523,7 @@ features_3per_NN2_4h <- (nrow(nn2_antisense_3per_4h_1) * 3) / 100
 nn2_antisense_3per_list_4h = list.append(nn2_antisense_3per_list_4h, rownames(nn2_antisense_3per_4h_1)[1:features_3per_NN2_4h])
 
 nn2_antisense_3per_list_4h <- unlist(nn2_antisense_3per_list_4h)
-featureCounts_NN2_4h_3per <- subset(featureCounts_PA_antisense_df_NN2,
-                                                    rownames(featureCounts_PA_antisense_df_NN2) %in%
-                                                      nn2_antisense_3per_list_4h)
+featureCounts_NN2_4h_3per <- subset(featureCounts_PA_antisense_df_NN2, rownames(featureCounts_PA_antisense_df_NN2) %in% nn2_antisense_3per_list_4h)
 
 gtf_nn2_antisense_4h_3per <- subset(import_gtf_NN2, transcript_id %in% rownames(featureCounts_NN2_4h_3per))
 gtf_nn2_antisense_4h_3per$time <- "4h"
@@ -596,14 +537,10 @@ nn2_antisense_n10high_8h_1 <- featureCounts_PA_antisense_df_NN2_norm_8h_4[order(
 
 features_3per_NN2_8h <- (nrow(nn2_antisense_n10high_8h_1) * 3) / 100
 
-nn2_antisense_n10high_list_8h = list.append(nn2_antisense_n10high_list_8h,
-                                            rownames(nn2_antisense_n10high_8h_1)[1:n_features])
+nn2_antisense_n10high_list_8h = list.append(nn2_antisense_n10high_list_8h, rownames(nn2_antisense_n10high_8h_1)[1:n_features])
 nn2_antisense_n10high_list_8h <- unlist(nn2_antisense_n10high_list_8h)
-featureCounts_PA_antisense_df_NN2_8h_high <- subset(featureCounts_PA_antisense_df_NN2,
-                                                    rownames(featureCounts_PA_antisense_df_NN2) %in%
-                                                      nn2_antisense_n10high_list_8h)
-gtf_nn2_antisense_8h_high <- subset(import_gtf_NN2, 
-                                    transcript_id %in% rownames(featureCounts_PA_antisense_df_NN2_8h_high))
+featureCounts_PA_antisense_df_NN2_8h_high <- subset(featureCounts_PA_antisense_df_NN2, rownames(featureCounts_PA_antisense_df_NN2) %in% nn2_antisense_n10high_list_8h)
+gtf_nn2_antisense_8h_high <- subset(import_gtf_NN2, transcript_id %in% rownames(featureCounts_PA_antisense_df_NN2_8h_high))
 gtf_nn2_antisense_8h_high$extract_start <- gtf_nn2_antisense_8h_high$start - feature_length
 gtf_nn2_antisense_8h_high$extract_end <- gtf_nn2_antisense_8h_high$end + feature_length
 
@@ -619,9 +556,7 @@ features_3per_NN2_8h <- (nrow(nn2_antisense_3per_8h_1) * 3) / 100
 nn2_antisense_3per_list_8h = list.append(nn2_antisense_3per_list_8h, rownames(nn2_antisense_3per_8h_1)[1:features_3per_NN2_8h])
 
 nn2_antisense_3per_list_8h <- unlist(nn2_antisense_3per_list_8h)
-featureCounts_NN2_8h_3per <- subset(featureCounts_PA_antisense_df_NN2,
-                                                    rownames(featureCounts_PA_antisense_df_NN2) %in%
-                                                      nn2_antisense_3per_list_8h)
+featureCounts_NN2_8h_3per <- subset(featureCounts_PA_antisense_df_NN2, rownames(featureCounts_PA_antisense_df_NN2) %in% nn2_antisense_3per_list_8h)
 
 gtf_nn2_antisense_8h_3per <- subset(import_gtf_NN2, transcript_id %in% rownames(featureCounts_NN2_8h_3per))
 gtf_nn2_antisense_8h_3per$time <- "8h"
@@ -644,11 +579,8 @@ features_3per_sg17m_4h <- (nrow(sg17m_antisense_n10high_4h_1) * 3) / 100
 
 sg17m_antisense_n10high_list_4h = list.append(sg17m_antisense_n10high_list_4h, rownames(sg17m_antisense_n10high_4h_1)[1:n_features])
 sg17m_antisense_n10high_list_4h <- unlist(sg17m_antisense_n10high_list_4h)
-featureCounts_PA_antisense_df_sg17m_4h_high <- subset(featureCounts_PA_antisense_df_sg17m,
-                                                    rownames(featureCounts_PA_antisense_df_sg17m) %in%
-                                                      sg17m_antisense_n10high_list_4h)
-gtf_sg17m_antisense_4h_high <- subset(import_gtf_sg17m, 
-                                    transcript_id %in% rownames(featureCounts_PA_antisense_df_sg17m_4h_high))
+featureCounts_PA_antisense_df_sg17m_4h_high <- subset(featureCounts_PA_antisense_df_sg17m, rownames(featureCounts_PA_antisense_df_sg17m) %in% sg17m_antisense_n10high_list_4h)
+gtf_sg17m_antisense_4h_high <- subset(import_gtf_sg17m, transcript_id %in% rownames(featureCounts_PA_antisense_df_sg17m_4h_high))
 gtf_sg17m_antisense_4h_high$extract_start <- gtf_sg17m_antisense_4h_high$start - feature_length
 gtf_sg17m_antisense_4h_high$extract_end <- gtf_sg17m_antisense_4h_high$end + feature_length
 
@@ -664,9 +596,7 @@ features_3per_sg17m_4h <- (nrow(sg17m_antisense_3per_4h_1) * 3) / 100
 sg17m_antisense_3per_list_4h = list.append(sg17m_antisense_3per_list_4h, rownames(sg17m_antisense_3per_4h_1)[1:features_3per_sg17m_4h])
 
 sg17m_antisense_3per_list_4h <- unlist(sg17m_antisense_3per_list_4h)
-featureCounts_sg17m_4h_3per <- subset(featureCounts_PA_antisense_df_sg17m,
-                                                    rownames(featureCounts_PA_antisense_df_sg17m) %in%
-                                                      sg17m_antisense_3per_list_4h)
+featureCounts_sg17m_4h_3per <- subset(featureCounts_PA_antisense_df_sg17m, rownames(featureCounts_PA_antisense_df_sg17m) %in% sg17m_antisense_3per_list_4h)
 
 gtf_sg17m_antisense_4h_3per <- subset(import_gtf_sg17m, transcript_id %in% rownames(featureCounts_sg17m_4h_3per))
 gtf_sg17m_antisense_4h_3per$time <- "4h"
@@ -680,14 +610,10 @@ sg17m_antisense_n10high_8h_1 <- featureCounts_PA_antisense_df_sg17m_norm_8h_4[or
 
 features_3per_SG17M_8h <- (nrow(sg17m_antisense_n10high_8h_1) * 3) / 100
 
-sg17m_antisense_n10high_list_8h = list.append(sg17m_antisense_n10high_list_8h,
-                                            rownames(sg17m_antisense_n10high_8h_1)[1:n_features])
+sg17m_antisense_n10high_list_8h = list.append(sg17m_antisense_n10high_list_8h, rownames(sg17m_antisense_n10high_8h_1)[1:n_features])
 sg17m_antisense_n10high_list_8h <- unlist(sg17m_antisense_n10high_list_8h)
-featureCounts_PA_antisense_df_sg17m_8h_high <- subset(featureCounts_PA_antisense_df_sg17m,
-                                                    rownames(featureCounts_PA_antisense_df_sg17m) %in%
-                                                      sg17m_antisense_n10high_list_8h)
-gtf_sg17m_antisense_8h_high <- subset(import_gtf_sg17m, 
-                                    transcript_id %in% rownames(featureCounts_PA_antisense_df_sg17m_8h_high))
+featureCounts_PA_antisense_df_sg17m_8h_high <- subset(featureCounts_PA_antisense_df_sg17m, rownames(featureCounts_PA_antisense_df_sg17m) %in% sg17m_antisense_n10high_list_8h)
+gtf_sg17m_antisense_8h_high <- subset(import_gtf_sg17m, transcript_id %in% rownames(featureCounts_PA_antisense_df_sg17m_8h_high))
 gtf_sg17m_antisense_8h_high$extract_start <- gtf_sg17m_antisense_8h_high$start - feature_length
 gtf_sg17m_antisense_8h_high$extract_end <- gtf_sg17m_antisense_8h_high$end + feature_length
 
@@ -700,15 +626,12 @@ sg17m_antisense_3per_8h_1 <- featureCounts_PA_antisense_df_sg17m_norm_8h_4[order
   featureCounts_PA_antisense_df_sg17m_norm_8h_4$sg17m_8h_BR3, decreasing=TRUE),]
 
 features_3per_sg17m_8h <- (nrow(sg17m_antisense_3per_8h_1) * 3) / 100
-sg17m_antisense_3per_list_8h = list.append(sg17m_antisense_3per_list_8h, 
-                                           rownames(sg17m_antisense_3per_8h_1)[1:features_3per_sg17m_8h])
+sg17m_antisense_3per_list_8h = list.append(sg17m_antisense_3per_list_8h, rownames(sg17m_antisense_3per_8h_1)[1:features_3per_sg17m_8h])
 
 sg17m_antisense_3per_list_8h <- unlist(sg17m_antisense_3per_list_8h)
-featureCounts_sg17m_8h_3per <- subset(featureCounts_PA_antisense_df_sg17m, 
-                                      rownames(featureCounts_PA_antisense_df_sg17m) %in% sg17m_antisense_3per_list_8h)
+featureCounts_sg17m_8h_3per <- subset(featureCounts_PA_antisense_df_sg17m, rownames(featureCounts_PA_antisense_df_sg17m) %in% sg17m_antisense_3per_list_8h)
 gtf_sg17m_antisense_8h_3per <- subset(import_gtf_sg17m, transcript_id %in% rownames(featureCounts_sg17m_8h_3per))
 gtf_sg17m_antisense_8h_3per$time <- "8h"
-
 
 gtf_sg17m_antisense_3per <- data.frame(rbind(gtf_sg17m_antisense_4h_3per, gtf_sg17m_antisense_8h_3per))
 gtf_sg17m_antisense_3per$gene_name3 <- NULL
