@@ -1,0 +1,3 @@
+# PROKKA annotation (version 1.14.6)
+prokka --kingdom bacteria --genus Pseudomonas --evalue 1e-09 --coverage 80 NN2.fasta
+prokka --kingdom bacteria --genus Pseudomonas --evalue 1e-09 --coverage 80 SG17M.fasta
